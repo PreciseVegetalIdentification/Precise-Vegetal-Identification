@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Clé de détermination botanique — v0.35</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F5F0;--surface:#FDFCFA;--border:#DDD8CF;--border-lt:#EDE9E2;
+  --text:#1A1812;--text-2:#5C5649;--text-3:#9A9385;
+  --green:#2D6A4F;--green-lt:#EAF2EC;
+  --blue:#1A4A7A;--blue-lt:#E6EEF7;
+  --amber:#7A4A10;--amber-lt:#F5EBD8;
+  --r:6px;--rl:10px;
+}
+html{background:var(--bg)}
+body{font-family:'Crimson Pro',Georgia,serif;color:var(--text);min-height:100vh;background:var(--bg)}
+.shell{max-width:680px;margin:0 auto;padding:32px 20px 60px}
+.hdr{text-align:center;margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid var(--border-lt)}
+.hdr h1{font-weight:300;font-size:26px;letter-spacing:.04em;margin-bottom:6px}
+.hdr p{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)}
+.prog{display:flex;gap:3px;margin-bottom:20px;height:2px}
+.dot{flex:1;border-radius:2px;background:var(--border)}
+.dot.done{background:var(--green)}.dot.active{background:var(--green);opacity:.4}
+.bc{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px;min-height:22px}
+.crumb{font-family:'DM Mono',monospace;font-size:10px;background:var(--surface);border:1px solid var(--border-lt);border-radius:3px;padding:2px 8px;color:var(--text-3)}
+.tag-o{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--green-lt);color:var(--green);border:1px solid #C2DAC8;border-radius:3px;padding:2px 8px;margin-bottom:8px}
+.tag-s{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;background:var(--blue-lt);color:var(--blue);border:1px solid #C2D4E8;border-radius:3px;padding:2px 8px;margin-left:5px;margin-bottom:8px}
+.slbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px}
+.q{font-size:20px;font-weight:400;line-height:1.45;margin-bottom:20px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:13px 16px;cursor:pointer;text-align:left;display:flex;align-items:flex-start;gap:12px;transition:border-color .12s,background .12s;font-family:'Crimson Pro',Georgia,serif}
+.opt:hover{border-color:var(--green);background:#F4F8F5}
+/* ── Pagination options ── */
+.opt-page{font-size:11px;color:var(--text-2);text-align:right;margin-bottom:4px;letter-spacing:.03em}
+.opt-nav{display:flex;gap:8px;margin-top:6px;align-items:center}
+.opt-autre{background:var(--green-lt);border:1px dashed var(--green);border-radius:var(--rl);padding:12px 18px;cursor:pointer;text-align:left;width:100%;font-family:'Crimson Pro',Georgia,serif;display:flex;align-items:center;justify-content:space-between;color:var(--green);font-size:15px;transition:background .12s;margin-top:4px}
+.opt-autre:hover{background:#DDF0E4}
+.opt-prev{background:none;border:1px solid var(--border);border-radius:var(--rl);padding:9px 14px;cursor:pointer;font-size:13px;color:var(--text-2);font-family:'Crimson Pro',Georgia,serif;transition:background .12s;margin-top:4px}
+.opt-prev:hover{background:var(--surface)}
+.opt-inconnu{background:none;border:1px solid var(--border);border-radius:var(--rl);padding:9px 16px;cursor:pointer;text-align:left;width:100%;font-family:'Crimson Pro',Georgia,serif;font-size:13px;color:var(--text-2);margin-top:10px;display:flex;align-items:center;gap:8px;transition:background .12s}
+.opt-inconnu:hover{background:var(--surface)}
+.opt:hover{border-color:var(--green);background:#F4F8F5}
+.ol{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;width:20px;height:20px;border-radius:50%;background:var(--border-lt);display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0;margin-top:2px}
+.ot{font-size:15px;line-height:1.5}
+.branches{display:flex;flex-direction:column;gap:7px}
+.branch{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .12s,background .12s}
+.branch:hover{border-color:var(--green);background:#F4F8F5}
+.branch.dashed{border-style:dashed}
+.bic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.bn{font-size:15px;font-weight:500}.bs{font-size:13px;color:var(--text-2);margin-top:2px}
+.ba{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);min-width:58px;text-align:right}
+.div{border:none;border-top:1px solid var(--border-lt);margin:4px 0}
+.gg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* ── Gymno organ grid (5 buttons) ── */
+.gyo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.gyo .gyob{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px 10px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s;font-family:'Crimson Pro',Georgia,serif}
+.gyo .gyob:hover{border-color:var(--green);background:#F4F8F5}
+.gyo .gyob.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:12px;text-align:left;padding:14px 18px;border-color:#C2DAC8;background:var(--green-lt)}
+.gyo .gyob.wide:hover{border-color:var(--green);background:#DDF0E4}
+.gyob-ic{font-size:22px;margin-bottom:5px}
+.gyob-n{font-size:13px;font-weight:500}
+.gyob-s{font-size:11px;color:var(--text-2);margin-top:2px}
+.gb{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:22px 16px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s}
+.gb:hover{border-color:var(--green);background:#F4F8F5}
+.gic{font-size:36px;margin-bottom:10px}.gn{font-size:16px;font-weight:500;margin-bottom:4px}.gs{font-size:12px;color:var(--text-2)}
+.og{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.ob{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px 12px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s}
+.ob:hover{border-color:var(--green);background:#F4F8F5}
+.ob.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;text-align:left;padding:18px 20px;border-color:#C2DAC8;background:var(--green-lt)}
+.ob.wide:hover{border-color:var(--green);background:#DDF0E4}
+.oic{font-size:24px;margin-bottom:6px}.on{font-size:14px;font-weight:500}.os{font-size:11px;color:var(--text-2);margin-top:2px}
+.res{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:28px}
+.rb{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--green-lt);color:var(--green);border:1px solid #C2DAC8;border-radius:3px;padding:2px 10px;display:inline-block;margin-bottom:12px}
+.rn{font-size:26px;font-weight:400;font-style:italic;margin-bottom:4px}
+.rsy{font-size:14px;color:var(--text-2);margin-bottom:16px}
+.rf{font-family:'DM Mono',monospace;font-size:11px;background:var(--blue-lt);border:1px solid #C2D4E8;border-radius:var(--r);padding:7px 12px;margin-bottom:10px;color:var(--blue);letter-spacing:.02em}
+.rf-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.7;display:block;margin-bottom:3px}
+.rfm{font-family:'DM Mono',monospace;font-size:12px;background:#FEF0F3;border:1px solid #F0C0CC;border-radius:var(--r);padding:9px 14px;margin-bottom:16px;color:#8B2040;letter-spacing:.04em}
+.rc{margin-bottom:14px}
+.cr{display:flex;gap:9px;margin-bottom:8px;font-size:14px;line-height:1.5}
+.cd{color:var(--green);flex-shrink:0;margin-top:2px;font-size:12px}
+
+/* ── Photo carousel ── */
+.pcar{margin:0 0 18px 0;border-radius:var(--rl);overflow:hidden;background:var(--surface);border:1px solid var(--border)}
+.pcar-label{padding:8px 14px;font-size:12px;color:var(--text-2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.pcar-count{font-size:11px;color:var(--text-3,#aaa)}
+.pcar-img-wrap{width:100%;aspect-ratio:4/3;background:#f0f0f0;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.pcar-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
+.pcar-loading{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-2);font-size:13px;gap:8px}
+.pcar-err{font-size:12px;color:var(--text-2);padding:20px;text-align:center}
+.pcar-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 12px}
+.pcar-btn{background:none;border:1px solid var(--border);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;color:var(--text);display:flex;align-items:center;justify-content:center;transition:background .1s}
+.pcar-btn:hover{background:var(--green-lt)}
+.pcar-dots{display:flex;gap:5px;align-items:center}
+.pcar-dot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:background .15s}
+.pcar-dot.active{background:var(--green)}
+
+.rft{border-left:2px solid var(--amber);padding:8px 14px;font-size:14px;color:var(--text-2);margin-bottom:20px;border-radius:0 var(--r) var(--r) 0;background:var(--amber-lt)}
+.rft strong{color:var(--amber);font-weight:600}
+.restart{background:transparent;border:1px solid var(--border);color:var(--text-2);padding:8px 20px;border-radius:var(--r);font-size:13px;font-family:'Crimson Pro',Georgia,serif;cursor:pointer;transition:border-color .12s,color .12s}
+.restart:hover{border-color:var(--green);color:var(--green)}
+/* ── Phycophytes : grille de couleurs ── */
+.pc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px}
+.pc-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:18px 12px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s;font-family:'Crimson Pro',Georgia,serif}
+.pc-btn:hover{border-color:var(--green);background:#F4F8F5}
+.pc-ic{font-size:28px;margin-bottom:8px}
+.pc-n{font-size:15px;font-weight:500;margin-bottom:3px}
+.pc-s{font-size:11px;color:var(--text-2)}
+.pc-blue{display:flex;align-items:center;gap:14px;text-align:left;padding:16px 20px;border-style:dashed;border-color:#4A90D9;background:#EEF4FB}
+.pc-blue:hover{background:#E0ECF8;border-color:#2A6AB8}
+.pc-warn{font-size:12px;color:#8B2020;margin-top:4px;font-style:italic}
+/* ── Résultat avertissement (Cyanobactéries) ── */
+.res-warn{background:#FFF8E1;border:1px dashed #D4A017;border-radius:var(--rl);padding:28px}
+.warn-icon{font-size:36px;margin-bottom:12px}
+.warn-title{font-size:22px;font-weight:500;margin-bottom:8px;color:#7A4A10}
+.warn-body{font-size:15px;line-height:1.65;color:var(--text-2);margin-bottom:20px}
+
+/* ── Glossaire : termes dans les QUESTIONS → clic modal ── */
+.gl{border-bottom:1px dotted var(--text-3);cursor:pointer;transition:color .1s,border-color .1s}
+.gl:hover{color:var(--green);border-bottom-color:var(--green)}
+
+/* ── Glossaire : termes dans les OPTIONS → hover 0.5s tooltip ── */
+.glt{border-bottom:1px dotted var(--text-3);cursor:help;transition:color .1s,border-color .1s;position:relative}
+.glt:hover{color:var(--green);border-bottom-color:var(--green)}
+
+/* ── Tooltip flottant ── */
+#tooltip{
+  display:none;
+  position:fixed;
+  z-index:300;
+  background:var(--text);
+  color:#F7F5F0;
+  font-family:'Crimson Pro',Georgia,serif;
+  font-size:13px;
+  line-height:1.55;
+  padding:10px 14px;
+  border-radius:var(--r);
+  max-width:300px;
+  pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+}
+#tooltip .tt-term{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;display:block;margin-bottom:5px}
+#tooltip .tt-src{font-family:'DM Mono',monospace;font-size:9px;opacity:.5;display:block;margin-top:6px}
+
+/* ── Modal glossaire (clic depuis questions) ── */
+.mb{display:none;position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:200;align-items:center;justify-content:center;padding:20px}
+.mb.open{display:flex}
+.md{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:26px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto}
+.mh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
+.mt{font-size:20px;font-weight:500}
+.mc{background:none;border:none;font-size:18px;color:var(--text-3);cursor:pointer;padding:0 0 0 12px}
+.mc:hover{color:var(--text)}
+.ms{font-family:'DM Mono',monospace;font-size:10px;background:var(--blue-lt);color:var(--blue);border:1px solid #C2D4E8;border-radius:3px;padding:2px 8px;display:inline-block;margin-bottom:14px}
+.mdf{font-size:15px;line-height:1.65;color:var(--text-2)}
+</style>
+</head>
+<body>
+
+<!-- Tooltip flottant pour les options -->
+<div id="tooltip">
+  <span class="tt-term" id="ttTerm"></span>
+  <span id="ttDef"></span>
+  <span class="tt-src" id="ttSrc"></span>
+</div>
+
+<!-- Modal pour les questions (clic) -->
+<div class="mb" id="mb" onclick="mbc(event)">
+  <div class="md">
+    <div class="mh"><span class="mt" id="mTerm"></span><button class="mc" onclick="cgl()">✕</button></div>
+    <span class="ms" id="mSrc"></span>
+    <p class="mdf" id="mDef"></p>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="hdr">
+    <h1>Clé de détermination botanique</h1>
+    <p>v0.35 — MOOC · BRDV · TP L2 · Plantes&Santé · Adventices · Diversité végétaux I & II · Gymnospermes</p>
+  </div>
+  <div class="bc" id="bc"></div>
+  <div class="prog" id="prog"></div>
+  <div id="app"></div>
+</div>
+
+<script>
+// ══ GLOSSAIRE — gl.md (version corrigée utilisateur) ════════════════════
+const GL={
+"Actinomorphe":{d:"Fleur actinomorphe : symétrie radiaire.",s:"[TP][BRDV]"},
+"Akène":{d:"La graine est libre dans le fruit (non associée au péricarpe).",s:"[TP][BRDV]"},
+"Albumen":{d:"Tissu nourricier à 3n chromosomes.",s:"[TP][BRDV]"},
+"Alternipétale":{d:"Position des étamines : insérées entre les pétales.",s:"[TP]"},
+"Anisogamie":{d:"Fécondation mettant en présence 2 gamètes morphologiquement et/ou physiologiquement différents.",s:"[DV2]"},
+"Annulus":{d:"Cellules en anneau à paroi rigidifiée par la lignine, présentes autour des sporanges des fougères (Filicophytes). Joue un rôle dans la libération mécanique des spores à maturité.",s:"[PT]"},
+"Anthère":{d:"Produit les gamétophytes (pollen).",s:"[BRDV]"},
+"Anthéridie":{d:"Gamétange mâle des bryophytes et ptéridophytes. Structure pluricellulaire à tissu épidermique protecteur contenant un tissu spermogène. À maturité, le capuchon apical s'autolyse et libère les spermatozoïdes flagellés (anthérozoïdes) dans l'eau.",s:"[BR]"},
+"Anthérozoïde":{d:"Spermatozoïde flagellé produit par les anthéridies des bryophytes et ptéridophytes. Guidé par chimiotactisme vers l'oosphère.",s:"[BR]"},
+"Aphylles":{d:"Forte réduction de la taille des feuilles, voire leur quasi-disparition ou leur disparition totale. Chez Ephedra (Gnetophyta).",s:"[GY]"},
+"Apifixe":{d:"Insertion du filet dans l'anthère au sommet.",s:"[TP]"},
+"Archégone":{d:"Gamétange rudimentaire contenant l'oosphère. Présent dans l'endosperme (gamétophyte femelle) des gymnospermes.",s:"[GY]"},
+"Archéthalle":{d:"Thalle où toutes les cellules ont le même rôle, elles se divisent toutes. Peut être unicellulaire (flagellé ou non) ou colonial (cellules maintenues par un mucilage).",s:"[DV2]"},
+"Arille":{d:"Enveloppe charnue dérivant d'un anneau de tissu à la base de l'ovule, se développant pendant la maturation de la graine. Adaptation à la dispersion par les animaux (zoochorie).",s:"[PS][GY]"},
+"Baie":{d:"Les trois tissus du péricarpe sont charnus. Les graines (appelées pépins) sont généralement nombreuses (le fruit est polyspermé) et libres.",s:"[TP][BRDV]"},
+"Ballonet aérifère":{d:"Expansion de l'enveloppe du grain de pollen des Coniférophytes se remplissant d'air, permettant d'alléger le grain de pollen et de le déplacer facilement par le vent.",s:"[GY]"},
+"Basifixe":{d:"Insertion du filet dans l'anthère à la base.",s:"[TP]"},
+"Biloculaire":{d:"Ovaire à deux loges.",s:"[TP]"},
+"Caliciflore":{d:"Étamines soudées au calice.",s:"[TP]"},
+"Cambium":{d:"Méristème secondaire qui assure la croissance en largeur.",s:"[GY]"},
+"Capitule":{d:"Ombelle sans pédoncule. [BRDV] Inflorescence formant une petite tête composée de nombreuses fleurs portées par un réceptacle commun.",s:"[BRDV][MOOC]"},
+"Carpelle":{d:"Pièce florale femelle, pouvant être fermée sur elle-même ou ouverte, libre ou soudée.",s:"[TP][BRDV]"},
+"Caryopse":{d:"Le péricarpe adhère à la graine ; ils sont indissociables, représente à la fois le fruit et la graine.",s:"[TP][BRDV]"},
+"Cellule du tube":{d:"Dans le grain de pollen des gymnospermes : cellule qui formera le tube permettant l'acheminement des anthérozoïdes vers l'oosphère.",s:"[GY]"},
+"Cellule générative (spermatogène)":{d:"Dans le grain de pollen des gymnospermes : cellule qui donnera les spermatozoïdes.",s:"[GY]"},
+"Cellule sous-stomatique":{d:"Cellule formant une assise cellulaire en partie basale, pouvant soutenir les cellules de garde du stomate.",s:"[GY]"},
+"Chaume":{d:"Tige creuse sauf aux nœuds. Caractéristique des Poaceae. [MOOC] Tige creuse entre les nœuds mais cloisonnée au niveau des nœuds.",s:"[MOOC][ADV]"},
+"Chimiotactisme":{d:"Propriété d'une cellule isolée et mobile, ou d'un organisme vivant, sensible à l'attraction ou à la répulsion par une substance chimique.",s:"[BR]"},
+"Châton":{d:"Épi allongé de fleurs unisexuées à enveloppes florales absentes, réduites ou écailleuses.",s:"[BRDV][GY]"},
+"Clade BEP":{d:"Clade des Poaceae : Bambusoideae, Ehrhartoideae, Pooideae.",s:"[ADV]"},
+"Clade PACCMAD":{d:"Clade des Poaceae : Panicoideae, Arundinoideae, Chloridoideae, Centothecoideae, Micrairoideae, Aristidoideae, Danthonioideae.",s:"[ADV]"},
+"Cladome primaire":{d:"Axe de croissance préférentiel du cladothalle. La cellule apicale de cet axe est à croissance infinie.",s:"[DV2]"},
+"Cladothalle":{d:"Thalle avec un axe préférentiel de croissance (cladome primaire) et des axes secondaires (cladomes secondaires et pleuridies). Pluricellulaires vrais — cellules liées par leurs parois.",s:"[DV2]"},
+"Coiffe":{d:"Tissu protecteur recouvrant la capsule (sporange) des bryophytes. Correspond au reste de l'archégone entraîné lors de la croissance du sporogone.",s:"[BR]"},
+"Coléoptile":{d:"Tissu de protection de la gemmule.",s:"[TP][BRDV]"},
+"Coléorhize":{d:"Tissu de protection du radicule.",s:"[TP][BRDV]"},
+"Conceptacle":{d:"⚠ Terme polysémique : (1) Chez les Angiospermes : réceptacle floral soudé à l'ovaire infère. [TP][BRDV] (2) Chez les algues (Fucus) : petite poche dans laquelle sont groupés les filaments reproducteurs (sporocystes / gamétocystes).",s:"[TP][BRDV][DV2]"},
+"Corbeille à propagules":{d:"Organe spécialisé de production et de libération des propagules, présent chez les hépatiques et certaines mousses (souvent sur les phyllidies).",s:"[BR]"},
+"Cormus":{d:"Appareil végétatif = racine + tronc ou tige + feuilles ou frondes.",s:"[BRDV]"},
+"Corolle bilabiée":{d:"Chez les Lamiaceae : corolle à 5 pétales soudés formant un tube à la base et deux lèvres au sommet.",s:"[MOOC]"},
+"Corolle papilionacée":{d:"Chez les Fabaceae (Papilionoideae) : 5 pétales — l'étendard en position supérieure, 2 ailes latérales, 2 pétales soudés formant une carène en forme de bateau.",s:"[MOOC]"},
+"Corolliflore":{d:"Étamines soudées à la corolle.",s:"[TP]"},
+"Corymbe":{d:"Fleurs dont le pédoncule est inséré le long de l'axe et continue à pousser — nivellement des fleurs.",s:"[BRDV]"},
+"Cotylédon(s)":{d:"Premières feuilles embryonnaires : 2 chez les dicotylédones, 1 chez les monocotylédones.",s:"[TP][BRDV]"},
+"Coussinet":{d:"Structure formée par l'agrégation de bryophytes. Cette agrégation permet de maintenir un milieu humide à la base, favorable au développement des individus.",s:"[BR]"},
+"Crosse circinée":{d:"Mode de croissance des jeunes frondes de fougères, enroulées sur elles-mêmes en forme de crosse, qui se déroulent progressivement à maturité.",s:"[PT][DV]"},
+"Cryptogame":{d:"Se dit d'une plante dont la fécondation se fait dans une crypte (structure cachée) de l'archégone. S'applique aux bryophytes et aux ptéridophytes.",s:"[PT]"},
+"Cuticule":{d:"Couche protectrice et imperméabilisante sur l'épiderme des aiguilles de gymnospermes et des feuilles de certaines plantes.",s:"[GY]"},
+"Cyathium":{d:"Chez les Euphorbia : inflorescence caractéristique (pseudanthe) = involucre portant des glandes nectarifères + 1 fleur ♀ + fleurs ♂ réduites.",s:"[PS]"},
+"Cyme bipare":{d:"Deux fleurs n+1 se développent respectivement à gauche et à droite du pédoncule de la fleur précédente.",s:"[BRDV]"},
+"Cyme hélicoïde":{d:"La fleur n+1 se développe à la base du pédoncule de la fleur précédente, en alternant gauche et droite.",s:"[BRDV]"},
+"Cyme scorpioïde":{d:"Inflorescence sympodiale : la fleur n+1 se développe sur le côté droit du pédoncule de la fleur précédente.",s:"[BRDV]"},
+"Cystogamie":{d:"Formation d'un pont cytogamique (pont de conjugaison) entre 2 filaments : le gamète n'est jamais libéré hors du thalle. Exemple : Spirogyre.",s:"[DV2]"},
+"Diakène":{d:"Chez les Apiaceae : fruit sec se divisant en 2 méricarpes.",s:"[MOOC]"},
+"Dialypétale":{d:"Corolle à pétales libres.",s:"[TP][BRDV]"},
+"Dialysépale":{d:"Calice libre : sépales indépendants les uns des autres.",s:"[TP][BRDV]"},
+"Didyname":{d:"Étamines de taille inégale : 2 longues + 2 courtes.",s:"[TP]"},
+"Dioïque":{d:"Les 2 sexes sont sur des pieds séparés.",s:"[TP][BRDV]"},
+"Drupe":{d:"Seuls l'épicarpe et le mésocarpe sont charnus ; l'endocarpe s'est lignifié pour former le noyau. Le noyau contient une seule graine (monospermé), appelée amande.",s:"[TP][BRDV]"},
+"Endoderme":{d:"Couche cellulaire protégeant les tissus conducteurs en partie centrale des aiguilles de conifères.",s:"[GY]"},
+"Endoprothallie":{d:"Développement du gamétophyte à l'intérieur du sporange, sans libération de la spore. Présent chez les gymnospermes et certains ptéridophytes.",s:"[GY]"},
+"Endosperme":{d:"(1) Chez les gymnospermes : gamétophyte femelle haploïde = partie interne de l'ovule. Tissu nourricier de l'embryon. [GY] (2) Chez les angiospermes : tissu nourricier 3n issu de la double fécondation = albumen.",s:"[GY]"},
+"Eudophylles":{d:"Vraies feuilles des Coniférophytes. Exemple : chez le sapin.",s:"[GY]"},
+"Extrorse":{d:"Mode de déhiscence des anthères : ouverture vers l'extérieur.",s:"[TP]"},
+"Faisceau libéro-ligneux":{d:"Groupement de tissus conducteurs chez les ptéridophytes et les plantes vasculaires : xylème (sève ascendante, rôle de soutien) associé au phloème (sève descendante). Constitue une unité fonctionnelle de conduction.",s:"[PT]"},
+"Faux-fruit":{d:"Dérive à 0 % de l'ovaire. La partie charnue provient généralement du réceptacle.",s:"[TP][BRDV]"},
+"Feuille flabellée":{d:"Feuille en forme d'éventail. Caractéristique de Ginkgo biloba.",s:"[GY]"},
+"Fleur cyclique":{d:"Les pièces florales sont toutes insérées en verticille sur le réceptacle floral.",s:"[TP]"},
+"Fleur hémicyclique":{d:"Des pièces florales en verticilles, d'autres en spirales.",s:"[TP]"},
+"Follicule":{d:"Fruit constitué d'un seul carpelle, s'ouvrant par une seule fente de déhiscence. Souvent associés en fruits multiples.",s:"[TP][BRDV]"},
+"Frondes":{d:"Feuilles des Fougères (Polypodiidae) — mégaphylles à nervures multiples ramifiées. Les jeunes frondes sont enroulées en crosse. [DV] Chez les Cycadées : équivalent des feuilles, portées en couronne apicale sur le tronc.",s:"[DV][GY]"},
+"Fruit charnu":{d:"La paroi de l'ovaire se gorge de matières de réserves, notamment de glucides.",s:"[TP]"},
+"Fruit multiple":{d:"Une fleur possède plusieurs ovaires → plusieurs fruits se développent.",s:"[TP]"},
+"Fruit sec":{d:"La paroi de l'ovaire se dessèche, devient fibreuse.",s:"[TP]"},
+"Fruit simple":{d:"Une fleur possède un unique ovaire → un unique fruit se développe.",s:"[TP]"},
+"Fruit vrai":{d:"Dérive à 100 % de l'ovaire.",s:"[TP][BRDV]"},
+"Frustules":{d:"Paroi des diatomées : structures siliceuses discontinues bivalves emboîtées (deux valves). Au moment de la division, chaque cellule-fille récupère une valve.",s:"[DV2]"},
+"Galbule":{d:"Chez Juniperus (Cupressaceae) : cône femelle dont les écailles deviennent charnues et soudées, ressemblant à une baie.",s:"[DV]"},
+"Gamopétale":{d:"Corolle à pétales soudés.",s:"[TP][BRDV]"},
+"Gamosépale":{d:"Calice soudé : sépales fusionnés ensemble.",s:"[TP][BRDV]"},
+"Gamétocyste":{d:"Cellule unisexuée chez les algues : elle ne donnera qu'un seul type de gamètes.",s:"[DV2]"},
+"Gemmule":{d:"Partie de l'embryon entre les cotylédons, qui formera la tige et les feuilles.",s:"[TP][BRDV]"},
+"Glomérule":{d:"Inflorescence sympodiale contractée — anneaux de fleurs le long d'un axe. Typique des Lamiaceae.",s:"[BRDV][MOOC]"},
+"Glumelles":{d:"Chez les Poaceae : deux bractées entourant chaque fleur dans l'épillet.",s:"[MOOC]"},
+"Glumes":{d:"Chez les Poaceae : deux bractées à la base de chaque épillet.",s:"[MOOC]"},
+"Gousse":{d:"Fruit constitué d'un seul carpelle, s'ouvrant par deux fentes de déhiscence. Chaque ½ carpelle est appelé valve. Caractéristique des Fabacées.",s:"[TP][BRDV]"},
+"Graine albuminée":{d:"L'albumen et l'embryon coexistent. L'embryon est petit, noyé dans la masse de l'albumen.",s:"[TP]"},
+"Graine amylacée":{d:"Réserves majoritairement glucidiques.",s:"[TP]"},
+"Graine exalbuminée":{d:"L'embryon se développe aux dépens de l'albumen — cotylédons volumineux — plus trace d'albumen.",s:"[TP]"},
+"Graine oléagineuse":{d:"Réserves majoritairement lipidiques.",s:"[TP]"},
+"Graine protéagineuse":{d:"Réserves majoritairement protéiques.",s:"[TP]"},
+"Gynostème":{d:"Chez les Orchidaceae : soudure de l'anthère et du style.",s:"[MOOC]"},
+"Hadrome":{d:"Association de cellules hydroïdes formant le tissu conducteur d'eau et de minéraux chez les bryophytes évoluées (ex : *Pogonatum*, *Polytrichum*). Analogue fonctionnel du xylème mais sans lignification.",s:"[BR]"},
+"Hile":{d:"Cicatrice visible sur la graine (point d'attache au placenta).",s:"[TP]"},
+"Hologamie":{d:"Fécondation mettant en présence 2 gamètes morphologiquement et physiologiquement identiques. Cas des unicellulaires.",s:"[DV2]"},
+"Hydroïde":{d:"Cellule conductrice de l'eau et des minéraux chez les bryophytes évoluées. Sa paroi se différencie biochimiquement. Rassemblées en hadrome.",s:"[BR]"},
+"Hypanthium":{d:"Réceptacle floral élargi en coupe portant les sépales, pétales et étamines. Caractéristique des Rosaceae.",s:"[MOOC]"},
+"Hétéromère":{d:"Le nombre de pièces florales diffère d'un verticille à l'autre.",s:"[TP]"},
+"Hétéroprothallie":{d:"Mode de développement des spores où une microspore donne un prothalle uniquement mâle et une macrospore donne un prothalle uniquement femelle. Caractère des sélaginelles et de certains équisétophytes.",s:"[PT]"},
+"Hétérosporie":{d:"Production de deux types de spores différents (microspores ♂ et mégaspores ♀). Caractère des gymnospermes.",s:"[GY][DV]"},
+"Indusie":{d:"Voile membraneux protégeant les sores chez certaines fougères.",s:"[DV]"},
+"Innervation dichotomique":{d:"Caractère archaïque des feuilles : les nervures se divisent en deux à plusieurs reprises. Chez Ginkgo biloba.",s:"[GY]"},
+"Introrse":{d:"Mode de déhiscence des anthères : ouverture vers l'intérieur de la fleur.",s:"[TP]"},
+"Isomère":{d:"Selon la règle d'isomérie, les éléments des verticilles successifs sont en même nombre.",s:"[TP]"},
+"Isoporie":{d:"Production de spores toutes identiques entre elles. Caractère des fougères et des lycopodes homosporés (≠ hétérosporie).",s:"[PT]"},
+"Isoprothallie":{d:"Mode de développement où une spore donne un prothalle portant à la fois des anthéridies (♂) et des archégones (♀). Caractère des filicophytes et de certains lycophytes et équisétophytes.",s:"[PT]"},
+"Labelle":{d:"Chez les Orchidaceae : pétale ventral +/- modifié.",s:"[MOOC]"},
+"Latérale":{d:"Mode de déhiscence des anthères : ouverture latérale.",s:"[TP]"},
+"Leptome":{d:"Association de cellules leptoïdes formant le tissu conducteur des assimilats (produits de photosynthèse) chez les bryophytes évoluées. Analogue fonctionnel du phloème.",s:"[BR]"},
+"Leptoïde":{d:"Petite cellule conductrice des produits de la photosynthèse chez les bryophytes évoluées (ex : *Pogonatum*). Forme une couronne externe autour de l'hadrome. Rassemblées en leptome.",s:"[BR]"},
+"Lignine":{d:"Composé biochimique renforçant les parois cellulaires du xylème des végétaux vasculaires. Révolution biochimique permettant la lignification des tissus conducteurs et leur conférant une rigidité structurale. Organisée en barreaux de chaise sur les parois.",s:"[PT]"},
+"Ligule":{d:"Chez les Poaceae : structure présente à la base du limbe (jonction gaine/limbe).",s:"[MOOC][ADV]"},
+"Macrosporophylle":{d:"Sporophylle femelle chez les plantes hétérosporées. Chez les gymnospermes : feuille modifiée portant les ovules. Synonyme de mégasporophylle.",s:"[AQ][GY]"},
+"Microphylles":{d:"Feuilles de petite taille à une seule nervure médiane non ramifiée. Caractère des Lycopodiopsida et Equisetidae.",s:"[DV]"},
+"Micropyle":{d:"Orifice visible sur la graine. [TP] Chez les gymnospermes : zone d'entrée du pollen dans l'ovule, reste ouverte.",s:"[TP][GY]"},
+"Microsporophylle":{d:"Sporophylle mâle chez les plantes hétérosporées. Chez les plantes à fleurs, les étamines sont interprétées comme microsporophylles.",s:"[AQ][GY]"},
+"Monoïque":{d:"Les 2 sexes sont sur le même pied. [TP] Chez les Coniférophytes : majoritairement bisexuées (monoïques).",s:"[TP][BRDV][GY]"},
+"Mucilage":{d:"Substance visqueuse faite de polysaccharides maintenant ensemble les cellules des colonies d'algues.",s:"[DV2]"},
+"Médifixe":{d:"Insertion du filet dans l'anthère en position médiane.",s:"[TP]"},
+"Mégaphylles":{d:"Feuilles à nervation complexe et ramifiée. Présentes chez les Polypodiidae et les Spermatophytes.",s:"[DV]"},
+"Mégasporophylle":{d:"Sporophylle femelle chez les plantes hétérosporées. Chez les plantes à fleurs, les carpelles sont interprétés comme mégasporophylles.",s:"[AQ][GY]"},
+"Méristème apical / axillaire":{d:"Zone de croissance en longueur à partir des apex ou des bourgeons. Cellules totipotentes.",s:"[GY]"},
+"Nectaires extra-floraux":{d:"Glandes nectarifères situées en dehors de la fleur, à la base du limbe. Caractère diagnostique de Prunus laurocerasus (2 glandes à la base du limbe).",s:"[PS]"},
+"Nervation palmée":{d:"Type de nervation dans lequel plusieurs nervures principales partent de la base du limbe en rayonnant. Caractère des Ranunculaceae.",s:"[AG]"},
+"Nucelle":{d:"Macrosporange de l'ovule — tissu diploïde intermédiaire entre le tégument et l'endosperme.",s:"[GY]"},
+"Nématothalle":{d:"Thalle filamenteux avec début de spécialisation. Zone de croissance intercalaire ou apicale. Les cellules-filles se sont divisées sans se séparer.",s:"[DV2]"},
+"Ochréa":{d:"Chez les Polygonaceae (Reynoutria) : gaine membraneuse à chaque nœud.",s:"[ADV]"},
+"Ombelle":{d:"Tous les pédoncules sont insérés au même niveau sur l'axe.",s:"[BRDV][MOOC]"},
+"Oogamie":{d:"Fécondation mettant en présence un gamète petit, mobile (flagellé), produit en grand nombre, et un gamète gros, immobile, chargé en réserves. [DV2] Chez Ginkgo biloba : les spermatozoïdes nagent dans un liquide jusqu'à l'oosphère.",s:"[DV2][GY]"},
+"Oosphère":{d:"Gamète femelle situé dans l'archégone de l'endosperme (gamétophyte femelle).",s:"[GY]"},
+"Ostiole":{d:"Pore des stomates, entouré de deux cellules de garde.",s:"[GY]"},
+"Ovaire infère":{d:"Pièces florales épigynes → conceptacle floral.",s:"[TP][BRDV]"},
+"Ovaire supère":{d:"Pièces florales hypogynes → réceptacle floral.",s:"[TP][BRDV]"},
+"Panchronique":{d:"Se dit d'un organisme vivant aujourd'hui alors que son phylum originel est fossile. Exemple : Welwitschia (Gnetophyta).",s:"[GY]"},
+"Panicule":{d:"Inflorescence ramifiée composée dont les axes secondaires portent eux-mêmes des épillets. Caractéristique de certaines Poaceae.",s:"[AG]"},
+"Pappus":{d:"Appendice sur l'akène favorisant la dispersion par le vent. Correspond au développement du calice.",s:"[MOOC]"},
+"Phycobilines":{d:"Pigments présents uniquement chez les algues rouges (Rhodobiontes). Permettent l'exploitation de toutes les longueurs d'onde lumineuses.",s:"[DV2]"},
+"Piridion":{d:"Le conceptacle devient charnu et comestible. Pseudo-fruit des Maloideae.",s:"[BRDV]"},
+"Pistil":{d:"Ensemble des carpelles fusionnés. Pour parler de pistil, il faut que les carpelles soient soudés au moins au niveau de l'ovaire.",s:"[BRDV]"},
+"Placentation axile":{d:"3 carpelles (ou plus) fermés et soudés. Le nombre de loges correspond au nombre de carpelles. Ovaire pluriloculaire.",s:"[TP][BRDV]"},
+"Placentation centrale":{d:"Carpelles fermés et soudés avec parois intérieures dégradées. Îlot central. Ovaire uniloculaire.",s:"[TP][BRDV]"},
+"Placentation pariétale":{d:"Ovules insérés sur la paroi de l'ovaire. Ovaire uniloculaire. Fabaceae (1 carpelle) et Brassicaceae (fausse cloison).",s:"[TP][BRDV]"},
+"Plasmodesmes":{d:"Communication entre cellules dont les cytoplasmes sont en contact. Passage sélectif. Apparus avec la lignée verte.",s:"[DV2]"},
+"Pollinies":{d:"Pollen aggloméré en massues.",s:"[MOOC]"},
+"Poricide":{d:"Mode de déhiscence des anthères : ouverture par pores.",s:"[TP]"},
+"Prothalle":{d:"Gamétophyte des ptéridophytes. Structure laminaire de quelques millimètres, autonome (≠ gamétophyte des bryophytes parasite du sporophyte), portant les anthéridies (♂) et les archégones (♀). Issu de la germination d'une spore par mitoses.",s:"[PT]"},
+"Protonema":{d:"Structure filamentaire chlorophyllienne issue de la germination d'une spore méiotique de bryophyte. Le protonema primaire est le premier stade de développement. Des bourgeons se forment et donnent naissance aux individus entiers. Le protonema secondaire peut se former par bourgeonnement d'un individu adulte.",s:"[BR]"},
+"Pseudo-fruit":{d:"Dérive en partie de l'ovaire et d'autres éléments floraux. Ovaire infère adhérent au conceptacle. Cas particuliers : piridion, péponide.",s:"[TP][BRDV]"},
+"Pseudophylles":{d:"Pseudo-feuilles sur une micro-tige reliée à la tige principale. Chez le pin (Pinus).",s:"[GY]"},
+"Pseudothalle":{d:"Appareil végétatif des Anthocérophytes ressemblant à un thalle mais constituant bien un cormus. Surface plane épaisse de plusieurs couches de cellules. Chlorophyllien et aplati.",s:"[BR]"},
+"Péponide":{d:"Cucurbitacées. Pseudo-baie avec placenta hypertrophié.",s:"[BRDV]"},
+"Périanthe":{d:"Ensemble des sépales et des pétales.",s:"[TP]"},
+"Péricarpe":{d:"Paroi du fruit, composé de l'épicarpe, du mésocarpe et de l'endocarpe. [TP] Périgone : L'ensemble des tépales",s:"[TP]"},
+"Racème":{d:"Un axe avec des fleurs à pédoncules répartis régulièrement. Floraison acropète (basifuge).",s:"[BRDV]"},
+"Radicule":{d:"Partie de l'embryon qui donnera les racines.",s:"[TP][BRDV]"},
+"Rayons ligneux":{d:"Cellules vivantes nourricières intercalées entre les cellules mortes du xylème.",s:"[GY]"},
+"Reviviscence":{d:"Propriété de certaines plantes (notamment les lycophytes et les bryophytes) de tolérer une dessiccation extrême puis de reprendre leur activité physiologique normale à la réhydratation. Caractère adaptatif permettant la survie dans des conditions défavorables.",s:"[PT]"},
+"Sac pollinique":{d:"Structure contenant les microspores qui évolueront en grains de pollen.",s:"[GY]"},
+"Samare":{d:"Fruit avec une aile développée à partir du carpelle.",s:"[TP][BRDV]"},
+"Silique":{d:"Fruit constitué de deux carpelles, s'ouvrant par quatre fentes de déhiscence, avec une fausse cloison (septum) médiane. Caractéristique des Brassicacées. [TP] Silicule [V] Fruit semblable à une silique mais de taille très réduite ( si longueur ≤ 3× largeur ).",s:"[TP][BRDV]"},
+"Siphonogamie":{d:"Mode de fécondation chez les Coniférophytes : tube pollinique achemine les gamètes mâles aux gamètes femelles. Fécondation totalement indépendante de l'eau.",s:"[GY]"},
+"Sores":{d:"Amas de sporanges sur la face abaxiale des frondes de fougères.",s:"[DV]"},
+"Sporocyste":{d:"La cellule du thalle qui donne des cellules productrices de spores.",s:"[DV2]"},
+"Sporogone":{d:"Sporophyte des bryophytes. Parasite du gamétophyte sur lequel il se développe après fécondation. Formé d'un pied (ancré dans le gamétophyte), d'une soie et d'une capsule (sporange) apicale protégée par la coiffe.",s:"[BR]"},
+"Sporophylle":{d:"Feuille fertile plus ou moins modifiée sur laquelle se forment des sporanges et des spores. Les sporophylles se rencontrent chez les fougères et les plantes à graines.",s:"[AQ]"},
+"Sporopollénine":{d:"Substance biochimique très résistante constituant la paroi externe (exine) des spores des ptéridophytes et des grains de pollen des angiospermes. Protège le contenu de la spore contre la dessiccation et les agents extérieurs.",s:"[PT]"},
+"Sporotrophophylle":{d:"Feuille qui produit à la fois des spores et une photosynthèse. Elle est pourvue de phylloïdes.",s:"[AQ]"},
+"Stigmate":{d:"Sommet des carpelles qui reçoit le pollen.",s:"[BRDV]"},
+"Stomate":{d:"Pore épidermique régulé par 2 cellules de garde pouvant s'écarter ou se resserrer pour moduler l'ouverture de l'ostiole. Permet la régulation des échanges gazeux. Apparu chez les ptéridophytes (≠ pores des bryophytes : toujours ouverts, non dynamiques).",s:"[PT]"},
+"Strate muscinale":{d:"Plus bas étage de végétation d'un écosystème, constitué de bryophytes. Se trouve à l'interface sol/air.",s:"[BR]"},
+"Strobile":{d:"Cône reproducteur terminal constitué de sporophylles portant les sporanges. Présent chez les Equisetales et Lycopodiopsida. [DV] Chez les gymnospermes : structuration des cônes mâles et femelles.",s:"[DV][GY]"},
+"Style":{d:"Aide l'avancée du tube pollinique jusqu'à l'ovule ou le fait avorter s'il y a système d'auto-incompatibilité.",s:"[BRDV]"},
+"Synange":{d:"Regroupement de 3 sporanges fusionnés formant une structure trilobée. Caractéristique des Psilophytes (ex : *Psilotum*).",s:"[PT]"},
+"Synanthérie":{d:"Étamines soudées par leurs anthères.",s:"[TP][MOOC]"},
+"Synapses":{d:"Perforations obturées par un bouchon glyco(externe)-protéique(interne). Communication passive — système primitif. Uniquement chez les algues rouges.",s:"[DV2]"},
+"Synstémonie":{d:"Étamines soudées par le filet.",s:"[TP]"},
+"Thalle":{d:"Ensemble de cellules sans organes distincts.",s:"[BRDV][DV2]"},
+"Tigelle":{d:"Partie de l'embryon qui porte les cotylédons.",s:"[TP][BRDV]"},
+"Tissu spermogène":{d:"Tissu interne homogène des anthéridies. Après maturation, chaque cellule effectue une mitose dont le produit est un spermatozoïde (anthérozoïde).",s:"[BR]"},
+"Trachéophyte":{d:"Végétal vasculaire possédant de vrais tissus conducteurs (xylème et phloème). Inclut les ptéridophytes et les spermaphytes (gymnospermes et angiospermes).",s:"[PT]"},
+"Trachéophytes":{d:"Végétaux vasculaires : ptéridophytes et spermaphytes (gymnospermes et angiospermes).",s:"[BRDV]"},
+"Trachéïdes aréolées":{d:"Cellules conductrices mortes du xylème des gymnospermes permettant les échanges de sève brute avec les tissus environnants par des zones de contact (aréoles).",s:"[GY]"},
+"Triloculaire":{d:"Ovaire à trois loges.",s:"[TP]"},
+"Trophophylle":{d:"Feuille stérile (non sporifère), par opposition à la sporophylle.",s:"[AQ]"},
+"Tube pollinique":{d:"Structure développée par la cellule du tube du grain de pollen, permettant d'acheminer les spermatozoïdes jusqu'à l'oosphère.",s:"[GY]"},
+"Tégument":{d:"(1) Chez les gymnospermes : enveloppe externe de l'ovule dérivant de la macrosporophylle — tissu diploïde. [GY] (2) Chez les angiospermes : enveloppe protectrice de la graine.",s:"[GY][TP]"},
+"Tépales":{d:"Pièces du périanthe quand sépales et pétales sont indistinguables.",s:"[TP]"},
+"Tétradyname":{d:"6 étamines dont 2 plus petites. Caractéristique des Brassicaceae.",s:"[MOOC][TP]"},
+"Uniloculaire":{d:"Ovaire à une seule loge.",s:"[TP]"},
+"Zoochorie":{d:"Dispersion des graines par les animaux.",s:"[GY]"},
+"Zygomorphe":{d:"Fleur irrégulière : symétrie par rapport à un plan.",s:"[TP][BRDV]"},
+"Écaille foliaire":{d:"Feuille modifiée en capuchon abritant les sporanges chez les Équisétophytes. Présente dans la partie apicale des tiges fertiles.",s:"[PT]"},
+"Écaille ovulifère":{d:"Exemple de mégasporophylle chez les Coniférophytes. Pièce de nature foliaire supportant les sporanges femelles.",s:"[AQ][GY]"},
+"Énation":{d:"Bourrelet ou excroissance écailleuse le long des tiges des Psilophytes (ex : *Psilotum*). Zones de croissance dichotomique.",s:"[PT]"},
+"Épi":{d:"Comme le racème, mais sans pédoncules. Floraison basifuge.",s:"[BRDV]"},
+"Épicarpe":{d:"Couche externe du péricarpe.",s:"[TP]"},
+"Épillet":{d:"Chez les Poaceae : épi de fleurs portant deux glumes à la base ; chaque fleur est entourée par deux glumelles.",s:"[MOOC]"},
+"Épipétale":{d:"Position des étamines : insérées devant les pétales.",s:"[TP]"},
+"Étamine":{d:"Pièce fertile mâle composée de l'anthère et du filet.",s:"[BRDV]"},
+};
+
+// ── Fonctions glossaire ───────────────────────────────────────────────────
+function sgl(t){const k=Object.keys(GL).find(k=>k.toLowerCase()===t.toLowerCase());return k?GL[k]:null}
+function showGL(t){const e=sgl(t);if(!e)return;document.getElementById('mTerm').textContent=t;document.getElementById('mSrc').textContent=e.s;document.getElementById('mDef').textContent=e.d;document.getElementById('mb').classList.add('open')}
+function cgl(){document.getElementById('mb').classList.remove('open')}
+function mbc(e){if(e.target===document.getElementById('mb'))cgl()}
+
+// gl() → termes dans les QUESTIONS → clic → modal
+function gl(html){
+  const terms=Object.keys(GL).sort((a,b)=>b.length-a.length);
+  let r=html;
+  terms.forEach(t=>{
+    const esc=t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const re=new RegExp(`(?<![a-zA-ZÀ-ÿ0-9_<"'])(${esc})(?![a-zA-ZÀ-ÿ0-9_>])`,'gi');
+    r=r.replace(re,`<span class="gl" onclick="showGL('${t}')">$1</span>`);
+  });
+  return r;
+}
+
+// glh() → termes dans les OPTIONS → hover 0.5s → tooltip
+function glh(html){
+  const terms=Object.keys(GL).sort((a,b)=>b.length-a.length);
+  let r=html;
+  terms.forEach(t=>{
+    const esc=t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
+    const re=new RegExp(`(?<![a-zA-ZÀ-ÿ0-9_<"'])(${esc})(?![a-zA-ZÀ-ÿ0-9_>])`,'gi');
+    r=r.replace(re,`<span class="glt" onmouseenter="startTT(event,'${t}')" onmouseleave="stopTT()">$1</span>`);
+  });
+  return r;
+}
+
+// Tooltip hover 0.5s — disparaît après 3s
+let ttTimer=null,ttHideTimer=null;
+const TT=document.getElementById('tooltip');
+function startTT(e,term){
+  stopTT();
+  ttTimer=setTimeout(()=>{
+    const entry=sgl(term);
+    if(!entry)return;
+    document.getElementById('ttTerm').textContent=term;
+    document.getElementById('ttDef').textContent=entry.d;
+    document.getElementById('ttSrc').textContent=entry.s;
+    TT.style.display='block';
+    positionTT(e);
+    ttHideTimer=setTimeout(stopTT,3000);
+  },500);
+}
+function stopTT(){
+  clearTimeout(ttTimer);ttTimer=null;
+  clearTimeout(ttHideTimer);ttHideTimer=null;
+  TT.style.display='none';
+}
+function positionTT(e){
+  const x=e.clientX,y=e.clientY;
+  const tw=TT.offsetWidth||300,th=TT.offsetHeight||80;
+  const vw=window.innerWidth,vh=window.innerHeight;
+  let left=x+12,top=y-10;
+  if(left+tw>vw-10)left=x-tw-12;
+  if(top+th>vh-10)top=vh-th-10;
+  if(top<10)top=10;
+  TT.style.left=left+'px';
+  TT.style.top=top+'px';
+}
+document.addEventListener('mousemove',e=>{if(TT.style.display==='block')positionTT(e)});
+
+// ══ DONNÉES ══════════════════════════════════════════════════════════════
+const BR=[
+  {ic:"~",bg:"#DCE9F5",co:"#1A4A7A",n:"Phycophytes",s:"Algues — thalle aquatique",a:"≥ 600 Ma",nx:"q_phyco_color"},
+  {ic:"◦",bg:"#DCF0E2",co:"#2D6A4F",n:"Bryophytes",s:"Mousses, hépatiques, anthocérotes",a:"~470 Ma",nx:"q_bryo1"},
+  {ic:"⌒",bg:"#E8E7FC",co:"#4A42A8",n:"Ptéridophytes",s:"Fougères, prêles, lycopodes",a:"~430 Ma",nx:"q_pt1"},
+  {ic:"▲",bg:"#F5EAD5",co:"#7A4A10",n:"Gymnospermes",s:"Plantes à cônes",a:"~360 Ma",nx:"q_gy0"},
+  {ic:"✿",bg:"#F5E2DC",co:"#8B2020",n:"Angiospermes",s:"Plantes à fleurs",a:"~130 Ma",nx:"q_organ"},
+  {ic:"?",bg:"#F0EDE8",co:"#9A9385",n:"Embranchement inconnu",s:"Je ne sais pas — me guider",a:"",nx:"q_uk1"},
+];
+const ORGANS=[
+  {ic:"🍃",n:"Feuille",s:"Limbe, pétiole, nervures",nx:"q_an1"},
+  {ic:"🌸",n:"Fleur",s:"Périanthe, androcée, gynécée",nx:"q_fl_inflo"},
+  {ic:"🍎",n:"Fruit",s:"Péricarpe, graines",nx:"q_fruit1"},
+  {ic:"🌱",n:"Graine",s:"Cotylédons, albumen",nx:"q_graine1"},
+];
+
+const N={
+// ── PHYCOPHYTES ───────────────────────────────────────────────────────────
+q_phyco_color:{og:"Couleur dominante",st:"Phycophytes",src:"[DV2]",isPhycoColor:true,
+q:"Quelle est la couleur dominante de l'algue ?"},
+q_phyco_org_vert:{og:"Thalle — organisation",st:"Chlorophytes",src:"[DV2]",
+q:"Quel est le niveau d'organisation du thalle ?",
+op:[
+  {t:"Archéthalle — unicellulaire ou colonial : toutes les cellules ont le même rôle",s:"Archéthalle → Chlorophytes unicellulaires",nx:"r_chloro_uni"},
+  {t:"Nématothalle — filamenteux : cellules en file, début de spécialisation",s:"Nématothalle → Chlorophytes/Charophytes",nx:"r_nema_vert"},
+  {t:"Cladothalle — ramifié : axe préférentiel de croissance + ramifications",s:"Cladothalle → Chlorophytes",nx:"r_clado_vert"},
+]},
+q_phyco_org_brun:{og:"Thalle — organisation",st:"Chromophytes",src:"[DV2]",
+q:"Quel est le niveau d'organisation du thalle ?",
+op:[
+  {t:"Archéthalle — unicellulaire — paroi discontinue formée de deux valves emboîtées (frustules)",s:"Archéthalle → Diatomées",nx:"r_diato"},
+  {t:"Nématothalle — filamenteux : cellules en file, début de spécialisation",s:"Nématothalle → Phéophycées",nx:"r_nema_brun"},
+  {t:"Cladothalle — ramifié : axe préférentiel de croissance + ramifications",s:"Cladothalle → Phéophycées",nx:"r_clado_brun"},
+]},
+q_phyco_org_rouge:{og:"Thalle — organisation",st:"Rhodophytes",src:"[DV2]",
+q:"Quel est le niveau d'organisation du thalle ?",
+op:[
+  {t:"Archéthalle — unicellulaire ou colonial : toutes les cellules ont le même rôle",s:"Archéthalle → Rhodophytes",nx:"r_arche"},
+  {t:"Nématothalle — filamenteux : cellules en file, début de spécialisation",s:"Nématothalle → Rhodophytes",nx:"r_nema_rouge"},
+  {t:"Cladothalle — ramifié : axe préférentiel de croissance + ramifications",s:"Cladothalle → Rhodophytes",nx:"r_clado_rouge"},
+]},
+
+// ── GYMNOSPERMES — organe macro/micro unifié ─────────────────────────────
+// Entrées directes depuis le sélecteur d'organe
+
+// ── Macrosporophylle ♀ (entrée directe) ─────────────────────────────────
+q_gy_macro_first:{og:"Macrosporophylle ♀",st:"Gymnospermes",src:"[GY][AQ]",
+q:"Quelle est la forme de la macrosporophylle (structure femelle) ?",
+op:[
+  {t:"Pas de cône ligneux — ovule solitaire entouré d'un arille charnu rouge subglobuleux — critère unique",s:"Arille rouge sans cône → Taxus baccata",nx:"r_taxus"},
+  {t:"Cône femelle ligneux (pomme de pin) — écaille ovulifère — graines ailées à maturité",s:"Cône ligneux → Pinaceae",nx:"r_pinaceae"},
+  {t:"Cône globuleux à écailles peltées (ligneux) — ou galbule charnu (Juniperus)",s:"Cône peltées ou galbule → Cupressaceae",nx:"r_cupressaceae"},
+  {t:"Ovules par paires à l'extrémité de pédoncules",s:"Ovules paires → Ginkgo biloba",nx:"r_ginkgo"},
+  {t:"Structures d'ovules à l'aisselle de feuilles modifiées",s:"Ovules axillaires + port palmier → Cycadidae",nx:"r_cycas"},
+  {t:"Cônes femelles en forme de pomme de pin",s:"Cônes femelles sans canaux résinifères → Gnetophyta",nx:"r_gnetophyta"},
+  {t:"Inconnu — je ne sais pas identifier cet organe",s:"Inconnu → autres organes",nx:"q_gy_inconnu"},
+]},
+
+// ── Microsporophylle ♂ (entrée directe) ─────────────────────────────────
+q_gy_micro_first:{og:"Microsporophylle ♂",st:"Gymnospermes",src:"[GY][AQ]",
+q:"Quelle est la forme de la microsporophylle (structure mâle) ?",
+op:[
+  {t:"Cônes très petits (2–3 mm) isolés à l'aisselle des aiguilles — pollinisation anémophile",s:"Cônes 2–3mm axillaires → Taxus baccata",nx:"r_taxus"},
+  {t:"Petits cônes mâles en grappe ou épi — écaille microsporangifère à 2 sacs polliniques",s:"Petits cônes + 2 sacs polliniques → Pinaceae",nx:"r_pinaceae"},
+  {t:"Petits cônes mâles écailleux",s:"Cônes écailleux → Cupressaceae",nx:"r_cupressaceae"},
+  {t:"Chaton (grappe de microfeuilles) portant les microsporanges",s:"Chaton + éventail bilobé → Ginkgo biloba",nx:"r_ginkgo"},
+  {t:"Grands cônes allongés mâles — étamines superposées",s:"Grands cônes + port palmier → Cycadidae",nx:"r_cycas"},
+  {t:"Cônes d'étamines en épi",s:"Cônes en épi sans canaux résinifères → Gnetophyta",nx:"r_gnetophyta"},
+  {t:"Inconnu — je ne sais pas identifier cet organe",s:"Inconnu → autres organes",nx:"q_gy_inconnu"},
+]},
+
+// ── Nœud de secours Inconnu ───────────────────────────────────────────────
+q_gy_inconnu:{og:"Organe inconnu",st:"Gymnospermes",src:"[DV][GY]",isGymnoInconnu:true,
+q:"Quel autre organe avez-vous à disposition ?"},
+
+
+
+// ── Aiguilles + Microsporophylle ♂ ──────────────────────────────────────
+q_gy_aig_micro:{og:"Microsporophylle — aiguilles",st:"Gymnospermes",src:"[GY]",
+q:"Quelle est la forme et la taille de la microsporophylle (structure mâle) ?",
+op:[
+  {t:"Très petits cônes (2–3 mm) isolés à l'aisselle des aiguilles",s:"Microsporophylle 2–3mm axillaire → Taxus baccata",nx:"r_taxus"},
+  {t:"Petits cônes en grappe ou épi — écaille microsporangifère à 2 sacs polliniques",s:"Petits cônes microsporophylles → Pinaceae",nx:"r_pinaceae"},
+  {t:"Petits cônes mâles écailleux",s:"Cônes mâles + aiguilles piquantes → Cupressaceae",nx:"r_cupressaceae"},
+]},
+
+// ── Aiguilles + Macrosporophylle ♀ ──────────────────────────────────────
+q_gy_aig_macro:{og:"Macrosporophylle — aiguilles",st:"Gymnospermes",src:"[GY]",
+q:"Quelle est la forme de la macrosporophylle (structure femelle) ?",
+op:[
+  {t:"Pas de cône ligneux — ovule solitaire entouré d'un arille charnu rouge subglobuleux — critère unique",s:"Arille rouge sans cône → Taxus baccata",nx:"r_taxus"},
+  {t:"Cône femelle ligneux (pomme de pin) — écaille ovulifère — graines ailées à maturité",s:"Cône ligneux → Pinaceae",nx:"r_pinaceae"},
+  {t:"Cône globuleux à écailles peltées (ligneux) — ou galbule charnu (Juniperus)",s:"Cône peltées ou galbule → Cupressaceae",nx:"r_cupressaceae"},
+]},
+
+// ── Feuilles + Microsporophylle ♂ ───────────────────────────────────────
+q_gy_feu_micro:{og:"Microsporophylle — feuilles",st:"Gymnospermes",src:"[GY]",
+q:"Quelle est la forme de la microsporophylle (structure mâle) ?",
+op:[
+  {t:"Grands cônes allongés mâles — étamines superposées",s:"Grands cônes mâles + tige non ramifiée → Cycadidae",nx:"r_cycas"},
+  {t:"Chaton (micro-strobile) : grappe de microfeuilles portant les microsporanges",s:"Chaton + feuilles éventail → Ginkgo biloba",nx:"r_ginkgo"},
+  {t:"Cônes mâles couverts d'étamines en épi",s:"Cônes d'étamines en épi, sans canaux résinifères → Gnetophyta",nx:"r_gnetophyta"},
+  {t:"Petits cônes mâles écailleux",s:"Petits cônes écailleux + feuilles écailleuses → Cupressaceae",nx:"r_cupressaceae"},
+]},
+
+// ── Feuilles + Macrosporophylle ♀ ───────────────────────────────────────
+q_gy_feu_macro:{og:"Macrosporophylle — feuilles",st:"Gymnospermes",src:"[GY]",
+q:"Quelle est la forme de la macrosporophylle (structure femelle) ?",
+op:[
+  {t:"Structures d'ovules immatures à l'aisselle de feuilles modifiées",s:"Ovules axillaires + tige non ramifiée → Cycadidae",nx:"r_cycas"},
+  {t:"Ovules par paires à l'extrémité de pédoncules",s:"Ovules paires sur pédoncules → Ginkgo biloba",nx:"r_ginkgo"},
+  {t:"Cônes femelles en forme de pomme de pin",s:"Cônes femelles sans canaux résinifères → Gnetophyta",nx:"r_gnetophyta"},
+  {t:"Cônes ligneux à écailles peltées — ou galbule charnu",s:"Cônes écailles peltées / galbule + feuilles écailleuses → Cupressaceae",nx:"r_cupressaceae"},
+]},
+
+// ── Tronc seul ───────────────────────────────────────────────────────────
+q_gy_tronc:{og:"Tronc",st:"Gymnospermes",src:"[GY]",
+q:"Quelle est la forme du tronc et son écorce ?",
+op:[
+  {t:"Tige non ramifiée — port de fougère arborescente ou de palmier — frondes en couronne apicale",s:"Tige non ramifiée + port palmier → Cycadidae",nx:"r_cycas"},
+  {t:"Tronc ramifié — feuilles réparties sur toutes les ramifications — feuilles caduques en éventail bilobé",s:"Tronc ramifié + feuilles en éventail → Ginkgo biloba",nx:"r_ginkgo"},
+  {t:"Écorce brun-rouge se desquamant en fines plaques — port cylindro-conique",s:"Écorce brun-rouge desquamante → Taxus baccata",nx:"r_taxus"},
+  {t:"Tronc principal ancré au sol par un système racinaire développé",s:"Tronc à aiguilles + canaux résinifères → Pinaceae / Cupressaceae",nx:"q_gy_aig"},
+  {t:"Inconnu — je ne reconnais pas le type de tronc",s:"Inconnu → microsporophylle",nx:"q_gy_micro_first"},
+]},
+
+// ── INCONNU ───────────────────────────────────────────────────────────────
+q_uk1:{og:"Appareil végétatif",st:"Détermination de l'embranchement",src:"[DV][BRDV]",
+q:"L'organisme possède-t-il un appareil végétatif organisé en organes distincts ?",
+op:[
+  {t:"Non — corps = thalle indifférencié, milieu aquatique obligatoire",s:"Thalle → Phycophytes",nx:"q_phyco_color"},
+  {t:"Pseudo-organes (phyllidies, caulidie, rhizoïdes) — pas de vaisseaux conducteurs — port ≤ 10 cm",s:"Pseudo-organes → Bryophytes",nx:"q_bryo1"},
+  {t:"Vrais organes (racines, tige, feuilles) et tissus conducteurs vrais",s:"Vrais organes → suite",nx:"q_uk2"},
+]},
+q_uk2:{og:"Organe reproducteur",st:"Détermination de l'embranchement",src:"[DV]",
+q:"La plante produit-elle des graines ou libère-t-elle des spores ?",
+op:[
+  {t:"Spores — sores, strobiles — pas de graine ni de fleur",s:"Spores → Ptéridophytes",nx:"q_pt1"},
+  {t:"Graine nue sur écaille de cône — pas de fruit vrai",s:"Graine nue → Gymnospermes",nx:"q_gy0"},
+  {t:"Graine enfermée dans un fruit — fleurs présentes",s:"Graine dans fruit → Angiospermes",nx:"q_organ"},
+]},
+
+// ── PTÉRIDOPHYTES ─────────────────────────────────────────────────────────
+q_pt1:{og:"Feuille",st:"Ptéridophytes",src:"[DV]",
+q:"Quelle est la forme des organes foliaires ?",
+op:[
+  {t:"Grandes frondes pennées à nervures multiples ramifiées — enroulées en crosse à l'état jeune",s:"Frondes → Polypodiidae",nx:"r_fougere"},
+  {t:"Feuilles réduites en gaines verticillées aux nœuds d'une tige articulée creuse — épiderme rugueux au toucher",s:"Gaines verticillées → Equisetidae",nx:"r_prele"},
+  {t:"Petites écailles (microphylles) en spirale sur la tige — une seule nervure médiane",s:"Microphylles → Lycopodiopsida",nx:"r_lyco"},
+]},
+
+// ── GYMNOSPERMES ──────────────────────────────────────────────────────────
+q_gy0:{og:"",st:"Gymnospermes",src:"[DV][GY][AQ]",isGymnoOrgan:true,
+q:"Quel organe avez-vous à disposition ?"},
+q_gy_aig:{og:"Aiguille — disposition",st:"Gymnospermes",src:"[DV]",
+q:"Quelle est la disposition des aiguilles sur le rameau ?",
+op:[
+  {t:"Aiguilles groupées en faisceau gainé de 2, 3 ou 5 — ou aiguilles solitaires",s:"Aiguilles → Pinaceae",nx:"r_pinaceae"},
+  {t:"Aiguilles piquantes verticillées par 3 sur tout le rameau",s:"Aiguilles piquantes → Cupressaceae",nx:"r_cupressaceae"},
+  {t:"Aiguilles aplaties en peigne des deux côtés du rameau (distiques)",s:"Distiques + arille → Taxaceae",nx:"r_taxus"},
+  {t:"Inconnu — je ne reconnais pas la disposition des aiguilles",s:"Inconnu → macrosporophylle",nx:"q_gy_macro_first"},
+]},
+q_gy_feu:{og:"Feuille — forme",st:"Gymnospermes",src:"[DV][GY]",
+q:"Quelle est la forme de la feuille ?",
+op:[
+  {t:"Feuilles en écailles courtes imbriquées entourant le rameau — rameaux en plumes ou en cordes",s:"Écailles → Cupressaceae",nx:"r_cupressaceae"},
+  {t:"Grandes frondes en couronne apicale — tige non ramifiée — port de fougère arborescente ou de palmier",s:"Frondes → Cycadidae",nx:"r_cycas"},
+  {t:"Feuille en éventail bilobée — innervation dichotomique",s:"Éventail bilobé → Ginkgoidae",nx:"r_ginkgo"},
+  {t:"Feuilles très réduites voire absentes sur tiges articulées (Ephedra) — ou 2 feuilles épaisses à nervures parallèles se lacérant (Welwitschia, désert Namibie) — ou feuilles vernissées à cuticule épaisse sur liane (Gnetum)",s:"Feuilles réduites / lacérées / vernissées → Gnetophyta",nx:"r_gnetophyta"},
+]},
+
+// ── ANGIOSPERMES — ORGANE ─────────────────────────────────────────────────
+q_organ:{og:"",st:"",src:"",isOrgan:true,
+q:"Quel(s) organe(s) avez-vous à disposition ?"},
+
+// ── FEUILLE ───────────────────────────────────────────────────────────────
+q_an1:{og:"Feuille",st:"Angiospermes",src:"[BRDV][MOOC]",
+q:"Quel est le type de nervures des feuilles ?",
+op:[
+  {t:"Nervures parallèles — courant de la base au sommet sans se ramifier",s:"Nervures parallèles → Monocotylédone",nx:"q_mo1"},
+  {t:"Nervures réticulées — se ramifiant en réseau sur tout le limbe",s:"Nervures réticulées → Dicotylédone",nx:"q_di0"},
+]},
+
+// ── FLEUR ─────────────────────────────────────────────────────────────────
+q_fl_inflo:{og:"Inflorescence",st:"Angiospermes — Fleur",src:"[BRDV][MOOC]",
+q:"Quel est le type d'inflorescence ?",
+op:[
+  {t:"Capitule — nombreuses fleurs sur réceptacle commun, entouré d'un involucre de bractées",s:"Capitule → Asteraceae",nx:"r_asteraceae"},
+  {t:"Ombelle composée d'ombellules — pétiole souvent en gaine",s:"Ombelle → Apiaceae",nx:"r_apiaceae"},
+  {t:"Cyme scorpioïde — en crosse se déroulant progressivement",s:"Cyme scorpioïde → Boraginaceae",nx:"q_bora1"},
+  {t:"Glomérule — anneau de fleurs à l'aisselle des feuilles — tige carrée",s:"Glomérule + tige carrée → Lamiaceae",nx:"r_lamiaceae"},
+  {t:"Inflorescence autre ou fleur solitaire",s:"Autre → symétrie",nx:"q_fl_sym"},
+]},
+q_fl_sym:{og:"Fleur — symétrie",st:"Angiospermes — Fleur",src:"[BRDV][TP]",
+q:"Quelle est la symétrie de la fleur ?",
+op:[
+  {t:"✶ Actinomorphe — symétrie radiale",s:"Actinomorphe",nx:"q_fl_peri"},
+  {t:"↓ Zygomorphe — un seul plan de symétrie",s:"Zygomorphe",nx:"q_fl_zygo"},
+]},
+q_fl_zygo:{og:"Fleur — corolle",st:"Angiospermes — Fleur",src:"[MOOC][TP]",
+q:"Quelle est la forme de la corolle zygomorphe ?",
+op:[
+  {t:"Corolle papilionacée : étendard + 2 ailes + carène",s:"Papilionacée → Fabaceae",nx:"q_fab1"},
+  {t:"Corolle bilabiée : lèvre supérieure (casque, 2 pétales) + lèvre inférieure (1 pétale bilobé)",s:"Bilabiée → Lamiaceae",nx:"r_lamiaceae"},
+  {t:"Corolle tubulaire en doigt de gant — 5 lobes inégaux — gorge maculée",s:"Doigt de gant → Digitalis",nx:"r_digitalis"},
+  {t:"Labelle (tépale ventral différencié) + gynostème + pollinies",s:"Labelle → Orchidaceae",nx:"r_orchi"},
+]},
+q_fl_peri:{og:"Fleur — périanthe",st:"Angiospermes — Fleur",src:"[MOOC][TP]",
+q:"Combien de sépales et de pétales ?",
+op:[
+  {t:"4 sépales + 4 pétales libres disposés en croix",s:"4+4 → Brassicaceae",nx:"r_brassicaceae"},
+  {t:"5 sépales + 5 pétales ou pièces nombreuses",s:"5+5 → androcée",nx:"q_fl_andro"},
+]},
+q_fl_andro:{og:"Fleur — androcée",st:"Angiospermes — Fleur",src:"[TP][MOOC]",
+q:"Comment les étamines sont-elles soudées ?",
+op:[
+  {t:"Synanthérie — 5 étamines soudées par leurs anthères en manchon autour du style",s:"Synanthérie → Asteraceae",nx:"r_asteraceae"},
+  {t:"Corolliflore — étamines soudées à la corolle",s:"Corolliflore → Lamiaceae",nx:"r_lamiaceae"},
+  {t:"Étamines libres, nombreuses — toutes les pièces florales libres entre elles",s:"Pièces libres → suite",nx:"q_fl_ovar"},
+]},
+q_fl_ovar:{og:"Fleur — gynécée",st:"Angiospermes — Fleur",src:"[BRDV][TP]",
+q:"L'ovaire est-il supère ou infère ?",
+op:[
+  {t:"Supère — pièces florales insérées sous l'ovaire (hypogynes) sur le réceptacle",s:"Ovaire supère",nx:"q_fl_ovar_sup"},
+  {t:"Infère — pièces florales insérées au-dessus de l'ovaire (épigynes) — ovaire soudé au conceptacle",s:"Ovaire infère",nx:"q_fl_ovar_inf"},
+]},
+
+q_fl_ovar_sup:{og:"Fleur — ovaire supère",st:"Angiospermes — Fleur",src:"[BRDV][TP]",
+q:"Les étamines et carpelles sont-ils libres et nombreux, ou les étamines sont-elles insérées sur un hypanthium, ou la corolle est-elle gamopétale ?",
+op:[
+  {t:"Étamines et carpelles nombreux libres en spirale — sépales souvent colorés",s:"Pièces libres → Ranunculaceae",nx:"q_ranun1"},
+  {t:"Étamines insérées sur un hypanthium — feuilles stipulées",s:"Hypanthium → Rosaceae",nx:"q_ros1"},
+  {t:"Corolle gamopétale en étoile ou en trompette — 5 étamines libres",s:"Gamopétale → Solanaceae",nx:"q_sola1"},
+]},
+
+q_fl_ovar_inf:{og:"Fleur — ovaire infère",st:"Angiospermes — Fleur",src:"[BRDV][TP]",
+q:"Quelle est l'inflorescence associée à cet ovaire infère ?",
+op:[
+  {t:"Ombelle composée d'ombellules — pétiole souvent en gaine",s:"Infère + ombelle → Apiaceae",nx:"r_apiaceae"},
+  {t:"Capitule entouré d'un involucre de bractées",s:"Infère + capitule → Asteraceae",nx:"r_asteraceae"},
+]},
+
+// ── FRUIT ─────────────────────────────────────────────────────────────────
+// ── FRUIT → TAXON (questions uniquement sur le fruit) ─────────────────────
+q_fruit1:{og:"Fruit",st:"Angiospermes — Fruit",src:"[TP]",
+q:"Le fruit est-il charnu ou sec ?",
+op:[
+  {t:"Charnu — péricarpe gorgé de matières de réserves",s:"Charnu",nx:"q_fruit_ch1"},
+  {t:"Sec — péricarpe desséché et fibreux",s:"Sec",nx:"q_fruit_sec1"},
+]},
+q_fruit_ch1:{og:"Fruit charnu — endocarpe",st:"Angiospermes — Fruit",src:"[TP]",
+q:"L'endocarpe (couche interne du péricarpe) est-il lignifié en noyau dur ?",
+op:[
+  {t:"Oui — endocarpe lignifié = noyau dur — 1 seule graine (amande) — fruit monospermé : drupe",s:"Drupe → suite",nx:"q_fruit_drupe"},
+  {t:"Non — 3 tissus du péricarpe charnus — graines = pépins libres — polyspermé : baie",s:"Baie → suite",nx:"q_fruit_baie"},
+  {t:"Enveloppe charnue rouge entourant une graine noire solitaire — structure subglobuleuse",s:"Arille rouge → Taxus baccata",nx:"r_taxus"},
+]},
+q_fruit_drupe:{og:"Drupe — couleur et taille",st:"Angiospermes — Fruit",src:"[TP][PS]",
+q:"Quelle est la couleur de la drupe à maturité complète ?",
+op:[
+  {t:"Verte puis noire à maturité — petite (1–1,5 cm)",s:"Drupe verte→noire → Laurus nobilis probable",nx:"r_laurus"},
+  {t:"Rouge puis noire — ressemble à une mini-cerise",s:"Drupe rouge→noire → Rosaceae (Prunus)",nx:"r_rosaceae"},
+  {t:"Autre couleur ou taille",s:"Drupe autre → Rosaceae",nx:"r_rosaceae"},
+]},
+q_fruit_baie:{og:"Baie — couleur",st:"Angiospermes — Fruit",src:"[TP][PS]",
+q:"Quelle est la couleur des baies ?",
+op:[
+  {t:"Baies rouges globuleuses brillantes",s:"Baies rouges → Convallaria majalis probable",nx:"r_conval"},
+  {t:"Baies noires brillantes avec calice étoilé persistant à la base",s:"Baies noires + calice étoilé → Solanaceae",nx:"r_solanaceae"},
+  {t:"Autre couleur",s:"Baie → Solanaceae famille",nx:"r_solanaceae"},
+]},
+q_fruit_sec1:{og:"Fruit sec",st:"Angiospermes — Fruit",src:"[TP]",
+q:"Le fruit s'ouvre-t-il spontanément à maturité ?",
+op:[
+  {t:"Oui — fentes de déhiscence spontanée",s:"Déhiscent",nx:"q_fruit_deh"},
+  {t:"Non — ne s'ouvre pas spontanément",s:"Indéhiscent",nx:"q_fruit_indeh"},
+]},
+q_fruit_deh:{og:"Fruit sec déhiscent — carpelles et fentes",st:"Angiospermes — Fruit",src:"[TP]",
+q:"Combien de carpelles ? Combien de fentes de déhiscence ? Forme du fruit ?",
+op:[
+  {t:"1 carpelle — 2 fentes — 2 valves (½ carpelles) : gousse allongée à graines alignées",s:"Gousse → Fabaceae",nx:"r_fabaceae"},
+  {t:"2 carpelles — 4 fentes + fausse cloison (septum) persistante : silique linéaire",s:"Silique → Brassicaceae",nx:"r_brassicaceae"},
+  {t:"Capsule ovoïde épineuse dressée — déhiscence par 4 valves — graines noires réniformes visibles",s:"Capsule épineuse 4 valves → Datura stramonium",nx:"r_datura"},
+  {t:"Capsule trilobée hérissée d'aiguillons mous — 3 graines marbrées dans les loges",s:"Capsule trilobée → Ricinus communis",nx:"r_ricin"},
+  {t:"Follicules allongés (≥ 2 par fleur, cylindriques, 6–10 cm) — ensemble déhiscent sur une fente",s:"Follicules allongés → Nerium oleander",nx:"r_nerium"},
+  {t:"Polyfollicule — plusieurs follicules par fleur — chacun s'ouvre par 1 fente",s:"Polyfollicule → Ranunculaceae",nx:"r_ranuncu"},
+]},
+q_fruit_indeh:{og:"Fruit sec indéhiscent",st:"Angiospermes — Fruit",src:"[TP][ADV]",
+q:"Le péricarpe adhère-t-il à la graine de façon indissociable ?",
+op:[
+  {t:"Oui — péricarpe et graine inséparables : caryopse — fruit très allongé ou ovoïde",s:"Caryopse → Poaceae",nx:"r_poaceae"},
+  {t:"Non — graine libre dans le péricarpe : akène",s:"Akène → suite",nx:"q_fruit_akene"},
+]},
+q_fruit_akene:{og:"Akène — caractères du péricarpe",st:"Angiospermes — Fruit",src:"[TP][ADV]",
+q:"L'akène porte-t-il un pappus, une aile ou est-il dans un involucre particulier ?",
+op:[
+  {t:"Akène surmonté d'un pappus plumeux bien développé — capitule visible",s:"Akène + pappus → Asteraceae",nx:"r_asteraceae"},
+  {t:"Akène enfermé dans un involucre épineux (boule hérissée)",s:"Akène + involucre épineux → Ambrosia artemisiifolia",nx:"r_ambrosia"},
+  {t:"Akène trigone (3 angles nets visibles) — petit, vert puis brun",s:"Akène trigone → Polygonaceae (Reynoutria probable)",nx:"r_reynoutria"},
+  {t:"Akène muni d'une aile membraneuse : samare",s:"Samare → famille à préciser par autre organe",nx:"r_asteraceae"},
+]},
+
+// ── GRAINE → TAXON (questions uniquement sur la graine) ───────────────────
+q_graine1:{og:"Graine — péricarpe",st:"Angiospermes — Graine",src:"[TP]",
+q:"Le péricarpe adhère-t-il à la graine de façon indissociable ?",
+op:[
+  {t:"Oui — péricarpe et tégument de la graine soudés et inséparables : caryopse",s:"Caryopse → Poaceae",nx:"r_poaceae"},
+  {t:"Non — graine séparable de son péricarpe",s:"Graine séparable",nx:"q_graine2"},
+]},
+q_graine2:{og:"Graine — cotylédons",st:"Angiospermes — Graine",src:"[TP][BRDV]",
+q:"Combien de cotylédons l'embryon possède-t-il ?",
+op:[
+  {t:"1 cotylédon — présence d'un coléoptile (gaine de la gemmule) et d'une coléorhize (gaine de la radicule)",s:"1 cotylédon → Monocotylédone",nx:"r_graine_mono"},
+  {t:"2 cotylédons",s:"2 cotylédons → Dicotylédone",nx:"q_graine3"},
+]},
+q_graine3:{og:"Graine — albumen",st:"Angiospermes — Graine",src:"[TP]",
+q:"L'albumen (tissu nourricier 3n) est-il présent dans la graine mature ?",
+op:[
+  {t:"Oui — graine albuminée — embryon petit noyé dans la masse de l'albumen",s:"Albuminée",nx:"q_graine4a"},
+  {t:"Non — graine exalbuminée — cotylédons volumineux, plus trace d'albumen",s:"Exalbuminée",nx:"q_graine4b"},
+]},
+q_graine4a:{og:"Graine albuminée — réserves",st:"Angiospermes — Graine",src:"[TP]",
+q:"Quel est le type de réserves dans l'albumen ?",
+op:[
+  {t:"Graine amylacée — albumen farineux",s:"Amylacée → Poaceae probable",nx:"r_poaceae"},
+  {t:"Graine oléagineuse — albumen huileux",s:"Oléagineuse → Brassicaceae probable",nx:"r_brassicaceae"},
+  {t:"Graine protéagineuse",s:"Protéagineuse → Fabaceae probable",nx:"r_fabaceae"},
+]},
+q_graine4b:{og:"Graine exalbuminée — réserves",st:"Angiospermes — Graine",src:"[TP]",
+q:"Quel est le type de réserves dans les cotylédons volumineux ?",
+op:[
+  {t:"Cotylédons charnus riches en protéines — graine protéagineuse",s:"Protéagineuse → Fabaceae",nx:"r_fabaceae"},
+  {t:"Cotylédons huileux — graine oléagineuse",s:"Oléagineuse → Brassicaceae",nx:"r_brassicaceae"},
+  {t:"Cotylédons farineux — graine amylacée",s:"Amylacée → Poaceae probable",nx:"r_poaceae"},
+]},
+// Résultat graine monocot (sans question sur organe souterrain)
+r_graine_mono:{R:true,pt:"Monocotylédones (Sous-embranchement)",f:"Monocotylédones",src:"[TP][BRDV]",sy:"1 cotylédon — famille à préciser par la plante entière",fm:"",
+ch:["1 cotylédon [BRDV]","Coléoptile (tissu de protection de la gemmule) [BRDV]","Coléorhize (tissu de protection du radicule) [BRDV]","Pour identifier la famille, observez la plante entière (tige, feuilles, fleur)"],
+fr:"Variable selon famille"},
+
+// ── MONOCOTYLÉDONES ───────────────────────────────────────────────────────
+q_mo1:{og:"Tige",st:"Monocotylédones",src:"[MOOC][ADV]",
+q:"La tige est-elle un chaume (creuse entre les nœuds, pleine et cloisonnée aux nœuds) ?",
+op:[
+  {t:"Oui — chaume creux entre les nœuds, plein aux nœuds",s:"Chaume",nx:"q_mo2"},
+  {t:"Non",s:"Non-chaume",nx:"q_mo3"},
+]},
+q_mo2:{og:"Feuille — jonction gaine/limbe",st:"Monocotylédones",src:"[MOOC]",
+q:"Y a-t-il une ligule à la jonction entre la gaine foliaire et le limbe ?",
+op:[
+  {t:"Ligule présente — membrane ou frange de poils",s:"Ligule → Poaceae",nx:"r_poaceae"},
+  {t:"Pas de ligule visible",s:"Pas de ligule",nx:"q_mo3"},
+]},
+q_mo3:{og:"Fleur",st:"Monocotylédones",src:"[MOOC]",
+q:"La fleur est-elle zygomorphe avec un labelle (tépale ventral profondément différencié) ?",
+op:[
+  {t:"Oui — labelle nettement différencié + gynostème + pollinies",s:"Labelle → Orchidaceae",nx:"r_orchi"},
+  {t:"Non",s:"Pas de labelle",nx:"q_mo4"},
+]},
+q_mo4:{og:"Organe souterrain",st:"Monocotylédones",src:"[PS]",
+q:"Quel est l'organe souterrain ? Quelle est l'odeur au froissement des feuilles ?",
+op:[
+  {t:"Bulbe fin allongé — odeur alliacée nette au froissement",s:"Bulbe + alliacée → Allium ursinum",nx:"r_allium"},
+  {t:"Corme volumineux — aucune odeur au froissement",s:"Corme + automne → Colchicum",nx:"r_colchi"},
+  {t:"Rhizome traçant — aucune odeur au froissement",s:"Rhizome + campanulées → Convallaria",nx:"r_conval"},
+]},
+
+// ── DICOTYLÉDONES ─────────────────────────────────────────────────────────
+q_di0:{og:"Tige",st:"Dicotylédones",src:"[MOOC][PS]",
+q:"Quelle est la section de la tige ? Y a-t-il du latex à la cassure ?",
+op:[
+  {t:"Tige franchement quadrangulaire — section carrée nette",s:"Tige carrée → Lamiaceae",nx:"r_lamiaceae"},
+  {t:"Latex blanc visible à la cassure de la tige ou du pétiole",s:"Latex blanc",nx:"q_di_latex"},
+  {t:"Tige ronde — pas de latex",s:"Ronde",nx:"q_di1"},
+]},
+q_di_latex:{og:"Feuille — disposition",st:"Dicotylédones — latex",src:"[PS]",
+q:"Quelle est la disposition des feuilles sur la tige ?",
+op:[
+  {t:"Feuilles verticillées par 3",s:"Verticillées 3 → Nerium",nx:"r_nerium"},
+  {t:"Autre disposition",s:"Autre + latex → Euphorbiaceae",nx:"q_di_euphorb"},
+]},
+q_di_euphorb:{og:"Inflorescence / feuille",st:"Euphorbiaceae",src:"[PS]",
+q:"Observez l'inflorescence et la feuille : cyathium ou feuilles peltées palmatilobées ?",
+op:[
+  {t:"Feuilles peltées palmatilobées à 7–9 lobes dentés — capsules trilobées hérissées — graines marbrées",s:"Peltées → Ricinus communis",nx:"r_ricin"},
+  {t:"Cyathium (pseudanthe : involucre à glandes nectarifères + fleurs réduites)",s:"Cyathium → Euphorbia spp.",nx:"r_euphorb"},
+]},
+q_di1:{og:"Inflorescence",st:"Dicotylédones",src:"[MOOC][PS][ADV]",
+q:"Quel est le type d'inflorescence ?",
+op:[
+  {t:"Capitule — réceptacle commun entouré d'un involucre de bractées",s:"Capitule → Asteraceae",nx:"q_ast1"},
+  {t:"Ombelle composée d'ombellules",s:"Ombelle → Apiaceae",nx:"r_apiaceae"},
+  {t:"Cyme scorpioïde",s:"Cyme scorpioïde → Boraginaceae",nx:"q_bora1"},
+  {t:"Grappe unilatérale de fleurs pendantes",s:"Doigt de gant → Digitalis",nx:"r_digitalis"},
+  {t:"Racèmes axillaires à fleurs blanches",s:"Racèmes blancs + base tronquée → Reynoutria",nx:"r_reynoutria"},
+  {t:"Glomérules axillaires",s:"Glomérules + aromatique → Laurus",nx:"r_laurus"},
+  {t:"Autre",s:"Autre → symétrie",nx:"q_di2"},
+]},
+q_bora1:{og:"Tige",st:"Boraginaceae",src:"[PS][V]",
+q:"La tige est-elle ailée par des feuilles décurrentes ?",
+op:[
+  {t:"Oui — tige ailée par des feuilles décurrentes",s:"Tige ailée → Symphytum",nx:"r_symphytum"},
+  {t:"Non — pas de tige ailée",s:"Poils blancs + bleues → Borago",nx:"r_borago"},
+]},
+q_ast1:{og:"Feuille",st:"Asteraceae",src:"[ADV][PS]",
+q:"Quel est l'aspect des feuilles ?",
+op:[
+  {t:"Feuilles lancéolées épineuses décurrentes sur la tige (ailes épineuses)",s:"Épineuses décurrentes → Cirsium",nx:"r_cirsium"},
+  {t:"Feuilles bipennatiséquées de couleur verte sur les DEUX faces — inodores",s:"Bipennatiséquées → Ambrosia",nx:"r_ambrosia"},
+  {t:"Autre morphologie foliaire",s:"Autre → Asteraceae",nx:"r_asteraceae"},
+]},
+q_di2:{og:"Fleur — symétrie",st:"Dicotylédones",src:"[BRDV][TP]",
+q:"Quelle est la symétrie de la fleur ?",
+op:[
+  {t:"↓ Zygomorphe — un seul plan",s:"Zygomorphe",nx:"q_di3"},
+  {t:"✶ Actinomorphe — symétrie radiale",s:"Actinomorphe",nx:"q_di4"},
+]},
+q_di3:{og:"Fleur — corolle",st:"Dicotylédones",src:"[MOOC]",
+q:"La corolle est-elle papilionacée (étendard + 2 ailes + carène) avec des feuilles composées stipulées ?",
+op:[
+  {t:"Oui — corolle papilionacée + feuilles composées stipulées",s:"Papilionacée → Fabaceae",nx:"q_fab1"},
+  {t:"Non",s:"Autre",nx:"r_fabaceae"},
+]},
+q_fab1:{og:"Tige",st:"Fabaceae",src:"[PS]",
+q:"La tige porte-t-elle des épines stipulaires rigides par paires à la base des feuilles ?",
+op:[
+  {t:"Oui — épines stipulaires par paires — feuilles imparipennées",s:"Épines → Robinia",nx:"r_robinia"},
+  {t:"Non — feuilles trifoliolées",s:"3 folioles + jaunes → Laburnum",nx:"r_laburnum"},
+  {t:"Non — autre structure foliaire",s:"Autre → Fabaceae",nx:"r_fabaceae"},
+]},
+q_di4:{og:"Fleur — périanthe",st:"Dicotylédones",src:"[MOOC]",
+q:"Combien de sépales et de pétales ?",
+op:[
+  {t:"4 sépales + 4 pétales libres en croix",s:"4+4 → Brassicaceae",nx:"r_brassicaceae"},
+  {t:"5 sépales + 5 pétales, ou pièces nombreuses",s:"5+5",nx:"q_di5"},
+]},
+q_di5:{og:"Tige — nœuds",st:"Dicotylédones",src:"[MOOC]",
+q:"Les nœuds de la tige sont-ils renflés ? Les feuilles sont-elles opposées et entières ?",
+op:[
+  {t:"Oui — nœuds renflés + feuilles opposées entières",s:"Nœuds renflés → Caryophyllaceae",nx:"r_caryophyl"},
+  {t:"Non",s:"Nœuds normaux",nx:"q_di6"},
+]},
+q_di6:{og:"Fleur — pétales",st:"Dicotylédones",src:"[BRDV]",
+q:"Les pétales sont-ils soudés en tube (gamopétale) ou libres (dialypétale) ?",
+op:[
+  {t:"Soudés — corolle gamopétale en étoile ou en trompette",s:"Gamopétale → Solanaceae",nx:"q_sola1"},
+  {t:"Libres — corolle dialypétale",s:"Dialypétale",nx:"q_di7"},
+]},
+q_sola1:{og:"Feuille",st:"Solanaceae",src:"[PS][ADV]",
+q:"Les feuilles sont-elles alternes ovales sinuées-dentées à dents acuminées, la plante est-elle robuste et fétide ?",
+op:[
+  {t:"Oui",s:"Sinuées + fétide → Datura",nx:"r_datura"},
+  {t:"Non",s:"Autre → Solanaceae",nx:"r_solanaceae"},
+]},
+q_di7:{og:"Fleur — androcée",st:"Dicotylédones",src:"[MOOC][TP]",
+q:"Les étamines sont-elles toutes libres entre elles et libres de toutes les autres pièces florales ?",
+op:[
+  {t:"Oui — toutes les pièces florales libres — étamines et carpelles nombreux libres — sépales souvent colorés",s:"Pièces libres → Ranunculaceae",nx:"q_ranun1"},
+  {t:"Étamines insérées sur un hypanthium — stipules souvent présentes",s:"Hypanthium → Rosaceae",nx:"q_ros1"},
+]},
+q_ranun1:{og:"Fleur",st:"Ranunculaceae",src:"[PS]",
+q:"Le sépale supérieur est-il transformé en casque (galère) en forme de capuchon ?",
+op:[
+  {t:"Oui — sépale supérieur transformé en casque bleu-violacé",s:"Casque → Aconitum",nx:"r_aconit"},
+  {t:"Non",s:"Autre → Ranunculaceae",nx:"r_ranuncu"},
+]},
+q_ros1:{og:"Feuille",st:"Rosaceae",src:"[PS]",
+q:"Les feuilles sont-elles oblongues-lancéolées coriaces (5–25 cm), brillantes, avec des nectaires extra-floraux à la base du limbe ?",
+op:[
+  {t:"Oui",s:"Nectaires → Prunus laurocerasus",nx:"r_plaurocerasus"},
+  {t:"Non",s:"Autre → Rosaceae",nx:"r_rosaceae"},
+]},
+
+// ══ RÉSULTATS ════════════════════════════════════════════════════════════
+r_chloro_uni:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Chlorophytes",src:"[DV2]",sy:"Algues vertes unicellulaires — Archéthalle",fm:"Chlorophytes",
+ch:["Corps unicellulaire, flagellé mobile ou immobile [DV2]","Couleur verte [DV2]","Paroi cellulosique [DV2]","Communications par plasmodesmes (lignée verte) [DV2]"],
+fr:"Gamétocystes unicellulaires (hologamie : 2 gamètes identiques) — ou sporocystes libérant des spores haploïdes [DV2]"},
+
+r_diato:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Diatomées",src:"[DV2]",sy:"Algues unicellulaires — Archéthalle",fm:"Diatomées",
+ch:["Paroi discontinue formée de deux valves emboîtées : frustules [DV2]","Au moment de la division, chaque cellule-fille récupère une valve [DV2]","Unicellulaires — parfois coloniaux [DV2]","Couleur brun-dorée [DV2]"],
+fr:"Sporocystes libérant des spores — reproduction sexuée pour réinitialiser la taille cellulaire après réduction par bipartition [DV2]"},
+
+r_arche:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Phycophytes",src:"[DV2]",sy:"Algues unicellulaires ou coloniales",fm:"Organisation : archéthalle [DV2]",
+ch:["Toutes les cellules ont le même rôle [DV2]","Unicellulaires (flagellées ou non) ou coloniaux (cellules maintenues par un mucilage) [DV2]"],
+fr:"Gamétocystes (hologamie ou planogamie) — ou sporocystes — ou fragmentation pour la multiplication végétative [DV2]"},
+
+r_cyano:{R:true,pt:"Phycophytes (Embranchement)",isCyano:true,f:"Cyanobactéries",src:"[DV2]",sy:"⚠ N'appartient pas à l'embranchement des Phycophytes",fm:"Procaryotes",
+ch:["Il n'existe pas d'algues bleues : elles correspondent aux cyanobactéries, donc à des procaryotes. [DV2]"],
+fr:"—"},
+
+r_nema_vert:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Chlorophytes / Charophytes",src:"[DV2]",sy:"Algues vertes filamenteuses",fm:"Chlorophytes / Charophytes",
+ch:["Thalle filamenteux — début de spécialisation — zone de croissance [DV2]","Couleur verte [DV2]","Communications par plasmodesmes [DV2]","Cycle monogénétique haplophasique possible (ex : Spirogyre — cystogamie) [DV2]"],
+fr:"Gamétocystes libérant des gamètes (cystogamie chez Spirogyre : pont de conjugaison) — sporocystes produisant des spores [DV2]"},
+
+r_nema_brun:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Phéophycées",src:"[DV2]",sy:"Algues brunes filamenteuses",fm:"Phéophycées",
+ch:["Thalle filamenteux — couleur brun-olivâtre [DV2]","Mers froides principalement [DV2]"],
+fr:"Sporocystes dans des conceptacles (Fucus) ou sur le thalle [DV2]"},
+
+r_nema_rouge:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Rhodobiontes",src:"[DV2]",sy:"Algues rouges filamenteuses",fm:"Rhodobiontes",
+ch:["Thalle filamenteux — couleur rouge à pourpre [DV2]","Communications intercellulaires par synapses — système primitif, unique aux algues rouges [DV2]","Mers à haute teneur saline [DV2]"],
+fr:"Gamétocystes — sporocystes — cycle trigénétique : gamétophyte → carposporophyte → tétrasporophyte [DV2]"},
+
+r_clado_vert:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Chlorophytes",src:"[DV2]",sy:"Algues vertes cladothalles",fm:"Chlorophytes",
+ch:["Thalle ramifié avec cladome primaire (axe préférentiel de croissance) [DV2]","Couleur verte [DV2]","Eaux douces ou marines peu profondes [DV2]","Communications par plasmodesmes [DV2]"],
+fr:"Sporocystes libérant des spores par méiose (cycle digénétique haplodiplophasique : ex Ulve de mer) — gamétocystes produisant les gamètes [DV2]"},
+
+r_clado_brun:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Phéophycées",src:"[DV2]",sy:"Algues brunes — Fucus, Laminaria",fm:"Phéophycées",
+ch:["Thalle ramifié — couleur brun-olivâtre [DV2]","Mers froides [DV2]","Cycle monogénétique diplophasique (Fucus) : gamétophyte très réduit [DV2]","Conceptacles reproducteurs chez le Fucus [DV2]"],
+fr:"Gamétocystes dans des conceptacles (Fucus : pieds mâles et femelles séparés) — oogamie : 64 spermatozoïdes pour 8 oosphères [DV2]"},
+
+r_clado_rouge:{R:true,fl:"Gamétocystes / Sporocystes",pt:"Phycophytes (Embranchement)",f:"Rhodobiontes",src:"[DV2]",sy:"Algues rouges cladothalles",fm:"Rhodobiontes",
+ch:["Thalle ramifié — couleur rouge à pourpre [DV2]","Mers à haute teneur saline — jusqu'à 120 m de profondeur [DV2]","Synapses : communications intercellulaires par perforations à bouchon glycoprotéique — unique aux algues rouges [DV2]","Cycle trigénétique diplo-haplophasique : synapomorphie des Rhodobiontes [DV2]"],
+fr:"Gamétocystes — cycle trigénétique : gamétophyte (n) → carposporophyte (2n) → tétrasporophyte (2n, sporanges libérant des spores) [DV2]"},
+
+// ── BRYOPHYTES — CHEMIN D'IDENTIFICATION ─────────────────────────────────
+// Source : [BR] exclusivement — bc.md Embranchement II
+
+q_bryo1:{og:"Milieu de vie",st:"Bryophytes (au sens large)",src:"[BR]",
+q:"Sur quel milieu pousse le végétal ?",
+op:[
+  {t:"Sol humide et ombragé — sous-bois, murs, rochers",s:"Sol humide ombragé",nx:"q_bryo2"},
+  {t:"Tourbière ou marais — milieu acide et gorgé d'eau",s:"Tourbière / marais",nx:"q_bryo2"},
+  {t:"Rochers siliceux en altitude (montagne)",s:"Rochers siliceux en montagne",nx:"q_bryo2"},
+  {t:"Milieu aquatique — flottant à la surface des mares ou étangs",s:"Aquatique",nx:"q_bryo2"},
+  {t:"Inconnu — milieu non identifiable sur le terrain",s:"Milieu inconnu",nx:"q_bryo2"},
+]},
+
+q_bryo2:{og:"Aspect général",st:"Bryophytes (au sens large)",src:"[BR]",
+q:"Quel est l'aspect du végétal ?",
+op:[
+  {t:"Surface plane épaisse aplatie — pseudothalle chlorophyllien — plusieurs couches de cellules empilées",s:"Pseudothalle aplati → Anthocérophytes",nx:"r_anthecerophytes"},
+  {t:"Corps plurilobé rappelant le foie — port thalloïde",s:"Corps plurilobé → Hépatophytes",nx:"r_hepatophytes"},
+  {t:"Coussinets spongieux décolorés ou blanchâtres — aspect hygrophile",s:"Coussinets blanchâtres → Sphagnales",nx:"r_sphagnales"},
+  {t:"Touffe sombre et dense — substrat rocheux",s:"Touffe sombre → Andreales",nx:"r_andreales"},
+  {t:"Mousse verte — axe (caulidie) portant des ramifications — symétrie radiale",s:"Mousse verte → Bryales",nx:"r_bryales"},
+]},
+
+r_anthecerophytes:{R:true,fl:"Gamétophyte / Sporophyte",pt:"Bryophytes — au sens large (Embranchement)",f:"Anthocérophytes",src:"[BR]",sy:"~350 espèces — groupe en perdition [BR]",fm:"Embryophytes non vasculaires",
+ch:["Pseudothalle chlorophyllien aplati — surfaces planes épaisses empilées (plusieurs couches de cellules) [BR]","Cormophytes malgré l'aspect thalloïde : présence d'épiderme, parenchyme chlorophyllien et tissus conducteurs [BR]","Milieux humides et ombragés obligatoires [BR]","Gamétophyte (n) dominant [BR]","Port ≤ 10 cm — pas de vaisseaux conducteurs vrais [BR]"],
+fr:"Gamétophyte (n) dominant — Sporophyte (sporogone 2n) parasite du gamétophyte, développe une capsule libérant des spores méiotiques [BR]"},
+r_hepatophytes:{R:true,fl:"Gamétophyte / Sporophyte",pt:"Bryophytes — au sens large (Embranchement)",f:"Hépatophytes",src:"[BR]",sy:"6 500 à 9 000 espèces [BR]",fm:"Embryophytes non vasculaires",
+ch:["Corps plurilobé rappelant la morphologie du foie humain [BR]","Zones les plus humides — certaines espèces aquatiques (flottent à la surface des mares et des étangs) [BR]","Pseudo-organes : phyllidies, caulidie, rhizoïdes [DV]","Gamétophyte (n) dominant [BR]","Corbeilles à propagules présentes chez les hépatiques [BR]","Archégones en corbeilles inversées — fécondation nécessite inondation [BR]"],
+fr:"Gamétophyte (n) dominant — Sporophyte (sporogone) se développe dans l'archégone, capsule massive libérant de nombreuses spores [BR]"},
+r_bryales:{R:true,fl:"Gamétophyte / Sporophyte",pt:"Bryophytes s.s. (Sous-embranchement)",f:"Bryales",src:"[BR]",sy:"Mousses au sens populaire — ordre le plus représenté [BR]",fm:"Embryophytes non vasculaires",
+ch:["Axe (caulidie) portant des phyllidies en ramifications — symétrie radiale [BR]","Milieux humides et ombragés classiques : sous-bois, sols, murs, rochers [BR]","Coussinets : agrégation maintenant un milieu humide à la base [BR]","Port ≤ 10 cm — absence de tissus de soutien [BR]","Gamétophyte (n) dominant — sporogone parasite sur le gamétophyte [BR]","Gamétophytes mâles (plus grands) et femelles (mort assurée après fécondation) [BR]","Tissus conducteurs variables : Neckera (parenchyme simple) / Pogonatum (leptoïdes + hydroïdes) / Polytrichum (hydroïdes fusionnés) [BR]"],
+fr:"Gamétophyte (n) dominant — Sporophyte (sporogone 2n) : pied ancré dans le gamétophyte + soie + capsule apicale protégée par la coiffe — opercule s'ouvre pour libérer les spores [BR]"},
+r_sphagnales:{R:true,fl:"Gamétophyte / Sporophyte",pt:"Bryophytes s.s. (Sous-embranchement)",f:"Sphagnales",src:"[BR]",sy:"Genre unique : Sphagnum — Sphaignes [BR]",fm:"Embryophytes non vasculaires",
+ch:["Genre unique Sphagnum [BR]","Participent à l'édification des tourbières [BR]","Milieux très humides, acides, gorgés d'eau [BR]","Coussinets spongieux caractéristiques, souvent décolorés ou blanchâtres [BR]","Gamétophyte (n) dominant [BR]"],
+fr:"Gamétophyte (n) dominant — Sporophyte (sporogone) porté par une pseudopode issue du gamétophyte — capsule libérant des spores méiotiques [BR]"},
+r_andreales:{R:true,fl:"Gamétophyte / Sporophyte",pt:"Bryophytes s.s. (Sous-embranchement)",f:"Andreales",src:"[BR]",sy:"Genre unique — ordre peu connu [BR]",fm:"Embryophytes non vasculaires",
+ch:["Genre unique vivant sur les rochers siliceux en montagne [BR]","Milieux rocheux et humides en altitude [BR]","Gamétophyte (n) dominant [BR]","Coussinets denses sur substrat siliceux [BR]"],
+fr:"Gamétophyte (n) dominant — Sporophyte (sporogone) développant une capsule portée par une soie — spores méiotiques [BR]"},
+r_fougere:{R:true,fl:"Sporophyte",pt:"Pteridophytes (Embranchement)",f:"Polypodiidae",src:"[DV][PT]",sy:"Filicophytes — ~11 000 sp.",fm:"Sporophyte 2n dominant",
+ch:["Rhizome souterrain — pas d'axe collinaire aerien [PT]","Grandes frondes (megaphylles) a nervures multiples ramifiees [PT]","Jeunes frondes enroulees en crosse circinee [PT]","Sores (regroupements de sporanges) sur la face abaxiale — proteges par des indusies [PT][DV]","3 types d'indusies : repli extremite / repli des bords / capuchon a pied [PT]","Annulus : cellules a paroi lignifiee — liberation mecanique des spores [PT]","Sporopollénine : substance protegeant la paroi des spores [PT]"],
+fr:"Sporophyte 2n dominant — sores sur face abaxiale de la fronde (sporanges à annulus) — spores haploïdes isospores libérées → prothalle autonome (gamétophyte n) portant anthéridies ♂ et archégones ♀ [PT]"},
+r_prele:{R:true,fl:"Sporophyte",pt:"Pteridophytes (Embranchement)",f:"Equisetidae",src:"[DV][PT]",sy:"Equisetophytes — 1 famille, 1 genre, ~15 esp. — en regression",fm:"Sporophyte 2n dominant",
+ch:["Tige creuse mais solide grace a l'epiderme [PT]","Feuilles en verticilles tubulaires aux noeuds [PT]","Tiges fertiles (portant l'epi sporifere) different des tiges steriles (nutritives) sur le meme rhizome [PT]","Ecaille foliaire (clou a sporanges) : feuille modifiee en capuchon abritant les sporanges [PT]"],
+fr:"Sporophyte 2n dominant — épi sporifère terminal (strobile) à écailles foliaires portant les sporanges — spores à élateurs hygroscopiques → prothalle [PT][DV]"},
+r_lyco:{R:true,fl:"Sporophyte",pt:"Pteridophytes (Embranchement)",f:"Lycopodiopsida",src:"[DV][PT]",sy:"Lycophytes — ~1 000 sp.",fm:"Sporophyte 2n dominant",
+ch:["Microphylles en spirale — peu ou pas de nervures [PT]","Vrai systeme racinaire [PT]","Port reduit (~10 cm actuel) — fossiles : 10 a 20 m [PT]","Propriete de reviviscence (tolerance a la dessiccation) [PT]","Epi sporifere (strobile) dans la region apicale [PT]","Selaginelles : dimorphisme sexuel — microsporophylles (apex) / macrosporophylles (base) [PT]"],
+fr:"Sporophyte 2n dominant — épi sporifère apical — isoporie (lycopodes) ou hétérosporie + endoprothallie (sélaginelles : prémices de la graine) [PT]"},
+r_pinaceae:{R:true,fl:"Microsporophylle / Macrosporophylle",pt:"Pinophyta (Sous-embranchement)",f:"Pinaceae",src:"[DV][GY]",sy:"Groupe le plus abondant de gymnospermes vivantes — 50 genres, 550 espèces",fm:"Gymnosperme — Coniférophytes monoïques",
+ch:["Aiguilles en faisceau gainé de 2, 3 ou 5 (Pinus = pseudophylles sur micro-tige) ou solitaires (Picea, Abies = eudophylles vraies feuilles) [GY]","Plantes majoritairement monoïques (bisexuées : mâle et femelle sur le même pied) [GY]","Cônes ou strobiles : cône mâle / cône femelle ligneux (pomme de pin) / cône mûr avec graines ailées [GY]","Canaux résinifères en zone centrale des tissus — siphonogamie : fécondation indépendante de l'eau [GY]","Dominent les forêts boréales (biome taïga) — environ un tiers de la masse forestière mondiale [GY]","Certains pins datés de plus de 4 000 ans [GY]"],fr:"Microsporophylle ♂ : petits cônes — écaille microsporangifère à 2 sacs polliniques — grains de pollen à ballonets aérifères [GY] | Macrosporophylle ♀ : cône femelle ligneux (pomme de pin) — écaille ovulifère portant les graines nues ailées [GY]"},
+r_cupressaceae:{R:true,fl:"Microsporophylle / Macrosporophylle",pt:"Pinophyta (Sous-embranchement)",f:"Cupressaceae",src:"[DV][PS]",sy:"",fm:"Gymnosperme — Cupressidae",
+ch:["Feuilles cupressoïdes imbriquées ou aiguilles piquantes verticillées","Cônes globuleux à écailles peltées ou galbules charnus (Juniperus)","Allergisants 🌼 [PS]"],fr:"Microsporophylle ♂ : petits cônes mâles écailleux [DV] | Macrosporophylle ♀ : cône à écailles peltées (Cupressus, Thuja) — ou galbule charnu (Juniperus) [DV]"},
+r_taxus:{R:true,fl:"Microsporophylle / Macrosporophylle",pt:"Taxaceae (Famille)",f:"Taxus baccata L. / T. brevifolia Nutt.",src:"[PS][GY]",sy:"If ⚫",fm:"Gymnosperme — 4 genres",
+ch:["Aiguilles aplaties en deux rangs par torsion du pétiole (distiques) — vert foncé adaxialement / vert jaunâtre abaxialement [GY]","Pas de cône femelle ligneux — particularité diagnostique majeure de la famille [GY]","Ovule solitaire entouré d'un arille (enveloppe charnue rouge subglobuleuse) à maturité [GY]","L'arille dérive d'un anneau de tissu à la base de l'ovule — adaptation à la zoochorie [GY]","Toute la plante est toxique sauf l'arille [PS][GY] — les oiseaux consomment les arilles, les graines traversent intactes","Port : petit arbre ou arbuste, max 15–18 m — croissance lente — très longévif (> 1 000 ans) [GY]","Écorce brun-rouge se desquamant en fines plaques [GY]","Cônes mâles très petits (2–3 mm) à l'aisselle des aiguilles — pollinisation anémophile [GY]"],
+fr:"Microsporophylle ♂ : cônes très petits (2–3 mm) à l'aisselle des aiguilles — pollinisation anémophile [GY] | Macrosporophylle ♀ : pas de cône ligneux — ovule solitaire entouré d'un arille charnu rouge (seule partie non toxique) [GY][PS]"},
+r_cycas:{R:true,fl:"Microsporophylle / Macrosporophylle",pt:"Gymnospermes (Embranchement)",f:"Cycadidae",src:"[DV][GY]",sy:"Groupe le plus ancien des Gymnospermes actuelles — 11 genres, 140 espèces",fm:"Gymnosperme — régions chaudes",
+ch:["Tige non ramifiée — port de fougère arborescente ou de palmier [GY]","Frondes (équivalent des feuilles) en partie apicale du tronc — vrai système racinaire [GY]","Croissance très lente — longévité importante — peuvent atteindre une vingtaine de mètres [GY]","Dioïques — tube pollinique ne transportant pas les gamètes — gamètes mâles ciliés [GY]","Groupe en régression — espèces relictuelles — nombreuses espèces menacées d'extinction [GY]","Diffusion maximale à l'ère mésozoïque [GY]"],
+fr:"Microsporophylle ♂ : grands cônes allongés mâles — étamines superposées [GY] | Macrosporophylle ♀ : structures d'ovules immatures à l'aisselle de feuilles modifiées [GY]",
+ex:"Microcycas calocoma (endémique Cuba, danger critique d'extinction [GY]) — Encephalartos woodii (éteinte à l'état sauvage, ~500 individus en collections [GY])"},
+r_ginkgo:{R:true,fl:"Microsporophylle / Macrosporophylle",pt:"Ginkgoidae (Sous-embranchement)",f:"Ginkgo biloba L.",src:"[DV][GY]",sy:"1 seule espèce vivante — Fossile vivant — 1 genre, 1 espèce",fm:"Gymnosperme caduc",
+ch:["Tronc ramifié avec feuilles réparties sur toutes ses ramifications (≠ Cycadées : tige non ramifiée, frondes en couronne apicale seulement) [GY]","Feuille en éventail bilobée — innervation dichotomique (caractère archaïque) [GY]","Arbre caduc — jaune vif très décoratif en automne [GY]","Originaire d'Asie — propagée par l'Homme sur tous les continents [GY]","Croissance lente — forte longévité : jusqu'à 2 000 ans [GY]","Peut atteindre jusqu'à 30 m de hauteur [GY]","Dioïque — tube pollinique ne transportant pas les gamètes — gamètes mâles ciliés [GY]"],
+fr:"Microsporophylle ♂ : chaton (micro-strobile) = grappe de microfeuilles portant les microsporanges [GY] | Macrosporophylle ♀ : ovules par paires sur pédoncules — graine entourée d'un arille charnu [GY][V]"},
+r_gnetophyta:{R:true,fl:"Microsporophylle / Macrosporophylle",pt:"Gymnospermes (Embranchement)",f:"Gnetophyta",src:"[DV][GY]",sy:"3 genres, 70 espèces — Gymnospermes à caractères intermédiaires",fm:"Gymnosperme — sans canaux résinifères",
+ch:["Plantes ligneuses sans canaux résinifères — apparaissent seulement au Tertiaire [GY]","Souvent dioïques — gamètes mâles non flagellés — double fécondation (caractères des angiospermes) [GY]","Présence de trachéïdes et de vaisseaux (≠ autres gymnospermes : trachéïdes uniquement) [GY]","Ephedra : arbustes ramifiés — tiges articulées et aphylles (forte réduction voire disparition totale des feuilles) — vaste répartition géographique [GY]","Gnetum : liane équatoriale — feuilles vernissées à cuticule épaisse — longues tiges fines ramifiées [GY]","Welwitschia : endémique du désert de Namibie — panchronique — tronc très court à écorce de liège — 2 feuilles épaisses à nervures parallèles se lacérant progressivement — grande longévité [GY]"],
+fr:"Microsporophylle ♂ : cônes d'étamines en épi [GY] | Macrosporophylle ♀ : cônes femelles en forme de pomme de pin [GY]"},
+r_poaceae:{R:true,pt:"Monocotyledones (Sous-embranchement)",f:"Poaceae",src:"[MOOC][ADV][AG]",sy:"Graminae — Herbacee [AG]",fm:"P0-2 A3-6 G(2-3)",
+ch:["Tige = chaume (creuse entre les noeuds, cloisonnee aux noeuds) [MOOC]","Feuilles engainantes a gaine fendue + ligule a la jonction gaine/limbe [MOOC]","Fleurs sans periante — 3 etamines [AG]","Inflorescence : 2 epis ou panicules d'epillets — chaque epillet entoure d'une paire de glumes [AG]","Epillets : 2 glumes a la base + 2 glumelles par fleur [MOOC]","Clade BEP (C3, tempere) vs PACCMAD (C4, chaud) [ADV]","Especes comestibles : avoine, ble, canne a sucre, mais, orge, riz, seigle, sorgho [AG]"],
+fr:"Caryopse (pericarpe soude a la graine) [TP]"},
+r_orchi:{R:true,pt:"Monocotyledones (Sous-embranchement)",f:"Orchidaceae",src:"[MOOC][AG]",sy:"Herbacee [AG]",fm:"down P3+3 [A1 G(3)]",
+ch:["Fleurs zygomorphes trimeres — 4 tepales dont un differencie en labelle [AG][MOOC]","Soudure de l'anthere et du style = gynosteme [MOOC]","Pollen agglonere en massues = pollinies [MOOC]","Ovaire infere — resupination (torsion 180 degres) frequente [MOOC]","3 carpelles soudes [AG]","Especes : vanille (Vanilla planifolia) [AG]"],
+fr:"Capsule dehiscente — graines tres petites [MOOC][AG]"},
+r_allium:{R:true,pt:"Amaryllidaceae (Famille)",f:"Allium ursinum L.",src:"[PS]",sy:"Ail des ours ✅",fm:"✶ P3+3 A3+3 G(3)",
+ch:["Odeur alliacée nette au froissement des feuilles [PS]","Feuilles par deux, longuement pétiolées, vert clair [PS]","Comestible — confusion possible avec Colchicum autumnale ⚫ et Convallaria majalis ⚫ [PS]"],fr:"Petites capsules trigones"},
+r_colchi:{R:true,pt:"Colchicaceae (Famille)",f:"Colchicum autumnale L.",src:"[PS]",sy:"Colchique d'automne ⚫",fm:"⚫ Mortel",
+ch:["Feuilles longues lancéolées engainantes sans pétiole — apparition printanière [PS]","Floraison automnale (sept.–nov.) nue : 6 tépales rose-mauve, 6 étamines, style trifide [PS]","Plante entière toxique — toxine thermostable (résiste à la cuisson et à la congélation) [PS]"],fr:"Grosse capsule trivalve apparaissant entre les feuilles au printemps suivant"},
+r_conval:{R:true,pt:"Asparagaceae — Nolinoideae (Famille)",f:"Convallaria majalis L.",src:"[PS]",sy:"Muguet ⚫",fm:"⚫ Très toxique",
+ch:["Feuilles engainantes toujours par deux — aucune odeur [PS]","Rhizome traçant","Fleurs campanulées blanches (printemps) — plante entière très toxique [PS]"],fr:"Baies rouges ⚫"},
+r_lamiaceae:{R:true,pt:"Dicotyledones (Sous-embranchement)",f:"Lamiaceae",src:"[MOOC][AG]",sy:"Labiatae — Herbacee — Famille tres conservee [MOOC]",fm:"down K(5) [C(5) A4] G(2)",
+ch:["Tige carree — critere diagnostique immediat [MOOC]","5 sepales soudes [AG]","Corolle bilabige zygomorphe : levre superieure = casque (2 petales) + style fourchu / levre inferieure = 1 petale biloble [MOOC][V]","4 etamines didynames (2 grandes + 2 petites) corolliflores [MOOC]","Ovaire tetraloculaire (septum) [MOOC]","Inflorescence en glomerdules ou epi de cymes [BRDV][AG]","Especes : sauge, thym, basilic, menthe, lavande, origan, romarin, lamier [AG]"],
+fr:"Tetrakene [MOOC]"},
+r_nerium:{R:true,pt:"Apocynaceae (Famille)",f:"Nerium oleander L.",src:"[PS]",sy:"Laurier-rose ⚫",fm:"✶ K(5) [C(5) A5] G(2)",
+ch:["Feuilles verticillées par 3 — lancéolées coriaces [V]","Latex blanc abondant","Cymes corymbiformes terminales — plante entière très toxique [PS]"],fr:"Follicules allongés cylindriques"},
+r_ricin:{R:true,pt:"Euphorbiaceae (Famille)",f:"Ricinus communis L.",src:"[PS]",sy:"Ricin ⚫",fm:"⚫ Mortel",
+ch:["Feuilles peltées palmatilobées à 7–9 lobes dentés [PS]","Capsules trilobées hérissées d'aiguillons mous [PS]","Plante entière très toxique — graines mortelles [PS]"],fr:"Capsule trilobée épineuse contenant 3 graines marbrées"},
+r_euphorb:{R:true,pt:"Euphorbiaceae (Famille)",f:"Euphorbia spp.",src:"[PS]",sy:"Euphorbes 🔴",fm:"🔴 Irritant",
+ch:["Latex blanc irritant dans toutes les parties végétatives [PS]","Inflorescence en cyathium (pseudanthe) [PS]"],fr:"Capsule tricoque"},
+r_cirsium:{R:true,pt:"Asteraceae (Famille)",f:"Cirsium arvense (L.) Scop.",src:"[ADV]",sy:"Chardon des champs",fm:"Adventice vivace réglementée",
+ch:["Tige anguleuse pubescente 50–150 cm [ADV]","Feuilles lancéolées épineuses décurrentes — ailes épineuses sur la tige [ADV]","Capitules rose-violacé en panicule corymbiforme — espèce dioïque [ADV]","Akène à pappus plumeux [ADV]"],fr:"Akène à pappus plumeux"},
+r_ambrosia:{R:true,pt:"Asteraceae (Famille)",f:"Ambrosia artemisiifolia L.",src:"[ADV][PS]",sy:"Ambroisie à feuilles d'armoise 🌼",fm:"🌼 Allergisant majeur",
+ch:["Feuilles bipennatiséquées de couleur verte sur les DEUX faces — inodores [ADV]","(≠ Artemisia vulgaris : face abaxiale tomenteuse blanche et aromatique)","Annuelle estivale — destruction obligatoire [ADV]","Pollen allergisant — seuil symptomatique : 5 grains/m³ [PS]"],fr:"Akène dans involucre épineux"},
+r_asteraceae:{R:true,pt:"Dicotyledones (Sous-embranchement)",f:"Asteraceae",src:"[MOOC][AG]",sy:"Compositae — Herbacee [AG]",fm:"✶/↓ Kpappus [C(5) A(5)] G(2)",
+ch:["Inflorescence en capitule entoure d'un involucre de bractees [MOOC]","Fleurs ligulee et/ou tubulees [MOOC]","Synanthere : 5 etamines soudees par leurs antheres en tube autour du style [MOOC]","2 stigmates — ovaire infere a 1 loge, 1 ovule [MOOC]","Especes comestibles : artichaut, chicoree, endive, laitue, tournesol [AG]"],
+fr:"Akene souvent surmonte d'un pappus [MOOC]"},
+r_apiaceae:{R:true,pt:"Dicotyledones (Sous-embranchement)",f:"Apiaceae",src:"[MOOC][PS][AG]",sy:"Umbelliferae — Herbacee [AG]",fm:"✶/↓ K5 C5 A5 G(2)",
+ch:["Inflorescence en ombelle composee d'ombellules +/- involucre de bractees [MOOC]","Feuilles souvent composees ou tres divisees — petiole en gaine [MOOC]","5 sepales reduits, 5 petales libres, 5 etamines — ovaire infere a 2 carpelles [MOOC]","Fleurs peripheriques a petales plus grands — se referme en nid d'oiseau en fin de floraison [AG]","Especes comestibles : celeri, carotte, cumin, fenouil, coriandre [AG]","Especes photosensibilisantes (furocoumarines) [PS]"],
+fr:"Diakene — fruit sec se divisant en 2 mercarpes [MOOC]"},
+r_symphytum:{R:true,pt:"Boraginaceae (Famille)",f:"Symphytum officinale L.",src:"[PS][V]",sy:"Consoude officinale 🔴",fm:"🔴",
+ch:["Tige ailée par les feuilles décurrentes — caractère diagnostique immédiat [V]","Feuilles rugueuses (≠ Digitalis purpurea : feuilles douces) [V]","Cyme scorpioïde — corolle à 5 lobes ÉGAUX [V]"],fr:"Tétrakène"},
+r_borago:{R:true,pt:"Boraginaceae (Famille)",f:"Borago officinalis L.",src:"[PS][V]",sy:"Bourrache officinale 🔴",fm:"🔴",
+ch:["Feuilles rugueuses — poils blancs raides très visibles [V]","Cyme scorpioïde [V]","Fleurs bleues étoilées — cône staminal saillant [V]"],fr:"Tétrakène"},
+r_digitalis:{R:true,pt:"Plantaginaceae (Famille)",f:"Digitalis purpurea L.",src:"[PS][V]",sy:"Digitale pourpre ⚫",fm:"↓ K(5) [C(5) A4 didyname] G(2)",
+ch:["Feuilles DOUCES et tomenteuses au toucher — critère décisif et immédiat [V][PS]","(≠ Symphytum officinale : feuilles rugueuses / ≠ Borago officinalis : feuilles rugueuses + poils blancs)","Grappe unilatérale — fleurs pendantes en doigt de gant [V][PS]","Corolle gamopétale, 5 lobes INÉGAUX — gorge maculée [V][PS]","Bisannuelle : rosette basale la 1ère année sans fleur [V][PS]","Plante entière très toxique [PS]"],fr:"Capsule septicide"},
+r_reynoutria:{R:true,pt:"Polygonaceae (Famille)",f:"Reynoutria japonica Houtt.",src:"[ADV]",sy:"Renouée du Japon — Invasive prioritaire",fm:"Invasive prioritaire nationale + UE",
+ch:["Feuilles ovales-cordées à base TRONQUÉE [ADV]","Ochréa (gaine membraneuse) à chaque nœud [ADV]","Herbacée vivace rhizomateuse robuste — massifs très denses [ADV]","Inflorescence en racèmes axillaires à fleurs blanches [ADV]"],fr:"Akène trigone"},
+r_laurus:{R:true,pt:"Lauraceae (Famille)",f:"Laurus nobilis L.",src:"[V]",sy:"Laurier-sauce ✅",fm:"✶ P(4) A9–12 G1",
+ch:["Feuilles alternes, étroitement elliptiques 5–10 cm, face inférieure plus claire [V]","Bord du limbe ondulé [V]","Feuilles aromatiques [V]","Inflorescence en glomérules axillaires [V]"],fr:"Drupe verte → noire"},
+r_fabaceae:{R:true,pt:"Dicotyledones (Sous-embranchement)",f:"Fabaceae",src:"[MOOC][AG]",sy:"Leguminosae (Papilionoideae) — Herbacee ou ligneuse [AG]",fm:"↓ K5 C5 A(10) G1",
+ch:["Corolle papilionacee zygomorphe : 1 etendard (petale superieur dresse) + 2 ailes (petales lateraux libres) + 1 carene (2 petales inferieurs soudes en bateau) [MOOC][V]","Feuilles stipulees, generalement composees [MOOC]","Ovaire unicarpelle — placentation parietale [MOOC]","Symbiose racinaire avec Rhizobiacees (nodosites fixatrices d'azote) [MOOC]","Especes comestibles : arachide, haricot, feve, lentille, luzerne, pois-chiche, soja [AG]"],
+fr:"Gousse (legume) dehiscente par 2 fentes [TP]"},
+r_robinia:{R:true,pt:"Fabaceae (Famille)",f:"Robinia pseudoacacia L.",src:"[PS]",sy:"Robinier faux-acacia ⚠",fm:"↓ K5 C5 A(10) G1",
+ch:["Épines stipulaires rigides par paires [PS]","Feuilles imparipennées — 9 à 21 folioles [PS]","Grappes pendantes de fleurs blanches parfumées [PS]","Fleurs comestibles — reste de la plante toxique [PS]"],fr:"Gousse aplatie"},
+r_laburnum:{R:true,pt:"Fabaceae (Famille)",f:"Laburnum anagyroides Medik.",src:"[PS]",sy:"Cytise faux-ébénier ⚫",fm:"↓ K5 C5 A(10) G1",
+ch:["Feuilles alternes trifoliolées — tige inerme (≠ Robinia) [PS]","Grappes pendantes de fleurs papilionacées jaunes [PS]","Plante entière toxique — graines +++ [PS]"],fr:"Gousse pubescente à graines noires"},
+r_brassicaceae:{R:true,pt:"Dicotyledones (Sous-embranchement)",f:"Brassicaceae",src:"[MOOC][AG]",sy:"Cruciferae — Herbacee [AG]",fm:"✶ K4 C4 A2+4 G(2)",
+ch:["4 sepales + 4 petales libres en croix [MOOC]","6 etamines tetradynames (4 longues + 2 courtes) [MOOC]","Ovaire superieur — 2 carpelles — fausse cloison (septum) [MOOC]","Especes comestibles : brocoli, chou, chou-fleur, colza, cresson, moutarde noire [AG]"],
+fr:"Silique (longueur > 3x largeur) ou silicule [MOOC]"},
+r_caryophyl:{R:true,pt:"Dicotylédones (Sous-embranchement)",f:"Caryophyllaceae",src:"[MOOC]",sy:"",fm:"✶ K(5) C5 A5+5 G(2-5)",
+ch:["Feuilles opposées entières — nœuds légèrement renflés [MOOC]","Inflorescence en cyme bipare [MOOC]","Fleur de type 5, ovaire supère, 2 à 5 styles [MOOC]"],fr:"Capsule déhiscente [MOOC]"},
+r_datura:{R:true,pt:"Solanaceae (Famille)",f:"Datura stramonium L.",src:"[PS][ADV]",sy:"Datura stramoine ⚫",fm:"✶ K(5) C(5) A5 G(2)",
+ch:["Feuilles alternes ovales sinuées-dentées à dents grossières acuminées — plante fétide [ADV]","Corolle gamopétale infundibuliforme blanche à violacée, 5 lobes acuminés [ADV]","Capsule ovoïde épineuse dressée — déhiscence par 4 valves — graines noires réniformes [ADV]","Plante entière très toxique [PS]"],fr:"Capsule épineuse dressée à 4 valves"},
+r_solanaceae:{R:true,pt:"Dicotylédones (Sous-embranchement)",f:"Solanaceae",src:"[ADV]",sy:"",fm:"✶ K(5) C(5) A5 G(2)",
+ch:["5 sépales soudés, 5 pétales soudés — corolle en étoile ou en trompette [ADV]","5 étamines — ovaire supère [ADV]","Fruit : baie ou capsule [ADV]"],fr:"Baie ou capsule"},
+r_aconit:{R:true,pt:"Ranunculaceae (Famille)",f:"Aconitum napellus L.",src:"[PS]",sy:"Aconit napel ⚫",fm:"✶/↓ K5 C_ A_ G_",
+ch:["Sépale supérieur transformé en casque (galère) bleu-violacé [PS]","Plante entière très toxique — racine napiforme tubéreuse +++ [PS]"],fr:"Follicules"},
+r_ranuncu:{R:true,pt:"Dicotyledones (Sous-embranchement)",f:"Ranunculaceae",src:"[MOOC][AG]",sy:"Famille ancienne tres diversifiee",fm:"✶/↓ K2-n C0-n An Gn",
+ch:["Fleur hemicyclique — n etamines libres en spirale — n carpelles libres en spirale [MOOC]","Nervation palmee — feuilles simples decoupees [AG]","Inflorescence : fleur solitaire, corymbe ou cyme bipare [MOOC]","Especes : ficaire, anemone des bois, renoncule acre, hellebore, aconit, ancolies, clematites, dauphinelles [AG]"],
+fr:"Polyfollicule ou polyakene [MOOC]"},
+r_plaurocerasus:{R:true,pt:"Rosaceae (Famille)",f:"Prunus laurocerasus L.",src:"[PS]",sy:"Laurier-cerise ⚫",fm:"✶ [K(5) C5 An] G1",
+ch:["Feuilles oblongues-lancéolées coriaces 5–25 cm — brillantes [PS]","Nectaires extra-floraux à la base du limbe [PS]","Plante toxique — graines et feuilles dangereuses [PS]"],fr:"Drupe rouge → noire"},
+r_rosaceae:{R:true,pt:"Dicotyledones (Sous-embranchement)",f:"Rosaceae",src:"[MOOC][AG]",sy:"Herbacee ou ligneuse [AG]",fm:"✶ [K(5) C5 An] G1-n",
+ch:["Feuilles dentees munies d'une paire de stipules [AG][MOOC]","5 sepales, 5 petales, etamines nombreuses (multiples de 5) [MOOC]","Hypanthium : receptacle floral elargi portant les etamines [MOOC]","Fruit extremement variable [AG]","Especes : abricotier, amandier, cerisier, fraisier, framboisier, pechier, pommier, poirier, rosiers [AG]"],
+fr:"Drupe (Prunus), piridion (Malus/Pyrus), polydrupe (Rubus), polyakene (Potentilla), faux-fruit (Fragaria), cynorhoodon (Rosa) [BRDV]"},
+r_drupe:{R:true,f:"Fruit charnu — Drupe",src:"[TP]",sy:"Fruit vrai charnu — monospermé",fm:"Endocarpe lignifié = noyau",
+ch:["Épicarpe + mésocarpe charnus [TP]","Endocarpe lignifié formant un noyau dur [TP]","1 seule graine = amande — fruit monospermé [TP]"],fr:"Drupe monospermée — noyau contenant l'amande"},
+r_baie:{R:true,f:"Fruit charnu — Baie",src:"[TP]",sy:"Fruit charnu — polyspermé",fm:"3 tissus charnus",
+ch:["3 tissus du péricarpe charnus et non lignifiés [TP]","Graines = pépins libres — généralement polyspermé [TP]"],fr:"Baie polyspermée — pépins libres dans la pulpe"},
+r_follicule:{R:true,f:"Fruit sec déhiscent — Follicule",src:"[TP]",sy:"1 carpelle, 1 fente",fm:"",ch:["1 carpelle — 1 fente de déhiscence [TP]","Souvent en polyfollicule [TP]"],fr:"Follicule"},
+r_gousse:{R:true,f:"Fruit sec déhiscent — Gousse",src:"[TP]",sy:"Caractéristique Fabaceae",fm:"",ch:["1 carpelle — 2 fentes de déhiscence — 2 valves (½ carpelles) [TP]","Caractéristique des Fabacées [TP]"],fr:"Gousse = légume"},
+r_silique:{R:true,f:"Fruit sec déhiscent — Silique",src:"[TP]",sy:"Caractéristique Brassicaceae",fm:"",ch:["2 carpelles ouverts et soudés — 4 fentes de déhiscence [TP]","Fausse cloison (septum) médiane persistante [TP]","Caractéristique des Brassicacées [TP]"],fr:"Silique ou silicule (si longueur ≤ 3× largeur)"},
+r_capsule:{R:true,f:"Fruit sec déhiscent — Capsule",src:"[TP]",sy:"≥ 2 carpelles",fm:"",ch:["Nombre de carpelles égal ou supérieur à 2 [TP]","Modes de déhiscence variables [BRDV]"],fr:"Capsule"},
+r_caryopse:{R:true,f:"Fruit sec indéhiscent — Caryopse",src:"[TP]",sy:"Caractéristique Poaceae",fm:"",ch:["Le péricarpe adhère à la graine — indissociables [TP]","Le caryopse représente à la fois le fruit et la graine [TP]"],fr:"Caryopse = fruit ET graine"},
+r_samare:{R:true,f:"Fruit sec indéhiscent — Samare",src:"[TP][BRDV]",sy:"Akène ailé",fm:"",ch:["Graine libre dans le péricarpe [TP]","Le péricarpe se développe en une aile [TP][BRDV]"],fr:"Samare = akène + aile carpellaire"},
+r_akene:{R:true,f:"Fruit sec indéhiscent — Akène",src:"[TP]",sy:"",fm:"",ch:["Graine libre dans le péricarpe — non soudée [TP]","Fruit monospermé indéhiscent [TP]"],fr:"Akène — graine unique libre"},
+r_graine_mono:{R:true,f:"Graine — Monocotylédone",src:"[TP][BRDV]",sy:"1 cotylédon",fm:"",ch:["1 cotylédon [BRDV]","Coléoptile (tissu de protection de la gemmule) [BRDV]","Coléorhize (tissu de protection du radicule) [BRDV]"],fr:"Variable selon famille"},
+r_graine_amyl:{R:true,f:"Graine amylacée",src:"[TP]",sy:"Réserves glucidiques",fm:"Graine amylacée [TP]",ch:["Réserves majoritairement de nature glucidique [TP]"],fr:"Variable selon famille"},
+r_graine_oleo:{R:true,f:"Graine oléagineuse",src:"[TP]",sy:"Réserves lipidiques",fm:"Graine oléagineuse [TP]",ch:["Réserves majoritairement de nature lipidique [TP]"],fr:"Variable selon famille"},
+r_graine_proto:{R:true,f:"Graine protéagineuse",src:"[TP]",sy:"Réserves protéiques",fm:"Graine protéagineuse [TP]",ch:["Réserves majoritairement de nature protéique [TP]"],fr:"Variable selon famille"},
+r_graine_fab:{R:true,f:"Graine exalbuminée protéagineuse — Fabaceae probable",src:"[TP]",sy:"",fm:"",ch:["2 cotylédons volumineux — plus trace d'albumen [TP]","Réserves protéagineuses dans les cotylédons [TP]"],fr:"Gousse (Fabaceae typique)"},
+};
+
+let hist=[],cur="br";
+const TOT=11;
+
+// ── PHOTOS — mapping taxon → IDs Google Drive ─────────────────────────────
+// URL : https://drive.google.com/thumbnail?id=ID&sz=w600
+// Fichiers à partager : "Tout le monde avec le lien"
+const PHOTOS={
+  r_ginkgo:{label:"Ginkgo biloba",imgs:["imgs/Ginkgoaceae/Ginkgo/Ginkgo_biloba/ginkgo_053.jpg","imgs/Ginkgoaceae/Ginkgo/Ginkgo_biloba/ginkgo_044.jpg","imgs/Ginkgoaceae/Ginkgo/Ginkgo_biloba/ginkgo_tronc.jpg"]},
+  r_taxus:{label:"Taxus baccata 'repandens'",imgs:["imgs/Taxaceae/Taxus/Taxus_baccata/taxus_1.jpg","imgs/Taxaceae/Taxus/Taxus_baccata/taxus_2.jpg","imgs/Taxaceae/Taxus/Taxus_baccata/taxus_3.jpg"]},
+  r_pinaceae:{label:"Pinus sylvestris 'rigensis'",imgs:["imgs/Pinaceae/Pinus/Pinus_sylvestris/pinus_1.jpg","imgs/Pinaceae/Pinus/Pinus_sylvestris/pinus_2.jpg","imgs/Pinaceae/Pinus/Pinus_sylvestris/pinus_3.jpg"]},
+  r_cupressaceae:{label:"Juniperus × pfitzeriana",imgs:["imgs/Cupressaceae/Juniperus/Juniperus_pfitzeriana/juni_1.jpg","imgs/Cupressaceae/Juniperus/Juniperus_pfitzeriana/juni_2.jpg","imgs/Cupressaceae/Juniperus/Juniperus_pfitzeriana/juni_3.jpg"]},
+  r_rosaceae:{label:"Prunus serrulata",imgs:["imgs/Rosaceae/Prunus/Prunus_serrulata/prunus_1.jpg","imgs/Rosaceae/Prunus/Prunus_serrulata/prunus_2.jpg","imgs/Rosaceae/Prunus/Prunus_serrulata/prunus_3.jpg"]},
+};
+let photoIdx={};
+let optPage={};
+function buildCarousel(nodeKey){
+  const p=PHOTOS[nodeKey];
+  if(!p||!p.imgs||!p.imgs.length)return'';
+  const idx=photoIdx[nodeKey]||0;
+  const src=p.imgs[idx];
+  const total=p.imgs.length;
+  return`<div class="pcar">
+    <div class="pcar-label">${p.label} <span class="pcar-count">${idx+1}/${total}</span></div>
+    <div class="pcar-img-wrap">
+      <img class="pcar-img" src="${src}" alt="${p.label}" loading="lazy">
+    </div>
+    <div class="pcar-nav">
+      ${idx>0?`<button class="pcar-btn" onclick="navPhoto('${nodeKey}',-1)">&#x2039;</button>`:'<span></span>'}
+      <div class="pcar-dots">${p.imgs.map((_,i)=>`<span class="pcar-dot${i===idx?' active':''}" onclick="navPhoto('${nodeKey}',${i-idx})"></span>`).join('')}</div>
+      ${idx<total-1?`<button class="pcar-btn" onclick="navPhoto('${nodeKey}',1)">&#x203a;</button>`:'<span></span>'}
+    </div>
+  </div>`;
+}
+
+function navPhoto(key,delta){
+  const p=PHOTOS[key];
+  if(!p)return;
+  const cur=photoIdx[key]||0;
+  photoIdx[key]=Math.max(0,Math.min(p.imgs.length-1,cur+delta));
+  render();
+}
+function triggerPhotoLoad(){}
+function render(){
+  const app=document.getElementById('app');
+  document.getElementById('bc').innerHTML=hist.map(h=>`<span class="crumb">${h}</span>`).join('');
+  document.getElementById('prog').innerHTML=Array.from({length:TOT},(_,i)=>{
+    let c='dot';if(i<hist.length)c+=' done';else if(i===hist.length)c+=' active';
+    return`<div class="${c}"></div>`;
+  }).join('');
+
+  if(cur==='br'){
+    app.innerHTML=`<div class="tag-o">Embranchement</div><p class="q">À quel embranchement appartient votre végétal ?</p><div class="branches">${BR.slice(0,-1).map(b=>`<button class="branch" onclick="go('${b.nx}','${b.n}')"><div class="bic" style="background:${b.bg};color:${b.co}">${b.ic}</div><div style="flex:1"><div class="bn">${b.n}</div><div class="bs">${b.s}</div></div><div class="ba">${b.a}</div></button>`).join('')}<hr class="div"><button class="branch dashed" onclick="go('${BR[5].nx}','${BR[5].n}')"><div class="bic" style="background:${BR[5].bg};color:${BR[5].co}">${BR[5].ic}</div><div style="flex:1"><div class="bn">${BR[5].n}</div><div class="bs">${BR[5].s}</div></div></button></div>`;
+    return;
+  }
+
+  const node=N[cur];if(!node)return;
+
+  if(node.R){
+    // Résultat Cyanobactéries — rendu avertissement
+    if(node.isCyano){
+      app.innerHTML=`<div class="res-warn"><div class="warn-icon">⚠️</div><div class="warn-title">Cyanobactéries</div><div class="warn-body"><strong>Ce groupe n'appartient pas à l'embranchement des Phycophytes.</strong><br><br>Il n'existe pas d'algues bleues : elles correspondent aux cyanobactéries, donc à des procaryotes. <span class="tag-s" style="vertical-align:middle">[DV2]</span></div><button class="restart" onclick="restart()">↺ Recommencer</button></div>`;
+      return;
+    }
+    const _nodeKey=cur;app.innerHTML=`<div class="res"><div class="rb">Taxon identifié</div><span class="tag-s">${node.src}</span><div class="rn">${node.f}</div>${node.sy?`<div class="rsy">${node.sy}</div>`:''}<div class="rf"><span class="rf-label">Taxon précédent</span>${node.pt||'—'}</div>${node.fm?`<div class="rfm">${gl(node.fm)}</div>`:''}<div class="rc">${node.ch.map(c=>`<div class="cr"><span class="cd">▸</span><span>${gl(c)}</span></div>`).join('')}</div>${node.fr?`<div class="rft"><strong>${node.fl||'Fruit'} :</strong> ${gl(node.fr)}</div>`:''}<div id="photo-slot"></div><button class="restart" onclick="restart()">↺ Nouvelle identification</button></div>`;
+  const _ps=document.getElementById('photo-slot');
+  if(_ps){_ps.outerHTML=buildCarousel(_nodeKey)||'';}
+    return;
+  }
+
+  if(node.isPhycoColor){
+    app.innerHTML=`
+      <div class="tag-o">Observez : Couleur dominante</div>
+      <span class="tag-s">[DV2]</span>
+      <p class="slbl">Phycophytes</p>
+      <p class="q">${gl(node.q)}</p>
+      <div class="pc-grid">
+        <button class="pc-btn" onclick="go('q_phyco_org_vert','🟢 Vert — Chlorophytes')">
+          <div class="pc-ic">🟢</div>
+          <div class="pc-n">Vert</div>
+          <div class="pc-s">Chlorophytes</div>
+        </button>
+        <button class="pc-btn" onclick="go('q_phyco_org_brun','🟤 Brun — Chromophytes')">
+          <div class="pc-ic">🟤</div>
+          <div class="pc-n">Brun</div>
+          <div class="pc-s">Chromophytes</div>
+        </button>
+        <button class="pc-btn" onclick="go('q_phyco_org_rouge','🔴 Rouge — Rhodophytes')">
+          <div class="pc-ic">🔴</div>
+          <div class="pc-n">Rouge à pourpre</div>
+          <div class="pc-s">Rhodophytes</div>
+        </button>
+      </div>
+      <hr class="div">
+      <button class="pc-btn pc-blue" onclick="go('r_cyano','🔵 Bleu — ⚠ Cyanobactéries')">
+        <div class="pc-ic" style="flex-shrink:0">🔵</div>
+        <div>
+          <div class="pc-n">Bleu</div>
+          <div class="pc-s">Cyanobactéries</div>
+          <div class="pc-warn">⚠ N'appartient pas à l'embranchement des Phycophytes</div>
+        </div>
+      </button>`;
+    return;
+  }
+
+  if(node.isOrgan){
+    app.innerHTML=`<div class="tag-o">Organe disponible</div><p class="q">${node.q}</p><div class="og">${ORGANS.map(o=>`<button class="ob" onclick="go('${o.nx}','${o.n}')"><div class="oic">${o.ic}</div><div class="on">${o.n}</div><div class="os">${o.s}</div></button>`).join('')}<button class="ob wide" onclick="go('q_an1','Plusieurs organes')"><div style="font-size:28px">🍃🌸🍎</div><div><div class="on">Plusieurs organes disponibles</div><div class="os">Commencer par la feuille</div></div></button></div>`;
+    return;
+  }
+
+  if(node.isGymnoOrgan){
+    app.innerHTML=`<div class="tag-o">Organe disponible</div><span class="tag-s">${node.src}</span><p class="slbl">Gymnospermes</p><p class="q">${node.q}</p>
+    <div class="gyo">
+      <button class="gyob" onclick="go('q_gy_aig','🌲 Aiguille')">
+        <div class="gyob-ic">🌲</div><div class="gyob-n">Aiguille</div><div class="gyob-s">Feuille aciculaire</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_feu','🍃 Feuille')">
+        <div class="gyob-ic">🍃</div><div class="gyob-n">Feuille</div><div class="gyob-s">Écailles, éventail, frondes</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_tronc','🪵 Tronc')">
+        <div class="gyob-ic">🪵</div><div class="gyob-n">Tronc</div><div class="gyob-s">Écorce, port, ramification</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_macro_first','🌸 Macrosporophylle ♀')">
+        <div class="gyob-ic">🌸</div><div class="gyob-n">Macrosporophylle ♀</div><div class="gyob-s">Structure femelle — cône, arille, ovule</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_micro_first','🌿 Microsporophylle ♂')">
+        <div class="gyob-ic">🌿</div><div class="gyob-n">Microsporophylle ♂</div><div class="gyob-s">Structure mâle — cône, chaton, étamines</div>
+      </button>
+      <button class="gyob wide" onclick="go('q_gy_aig','🌲🍃🪵 Plusieurs organes')">
+        <div style="font-size:22px;margin-right:8px">🌲🍃🪵</div>
+        <div><div class="gyob-n">Plusieurs organes disponibles</div><div class="gyob-s">Commencer par la feuille ou l'aiguille</div></div>
+      </button>
+    </div>`;
+    return;
+  }
+
+  if(node.isGymnoAigOrgan){
+    app.innerHTML=`<div class="tag-o">Observez : Aiguilles</div><span class="tag-s">${node.src}</span><p class="slbl">Gymnospermes — Aiguilles</p><p class="q">${node.q}</p>
+    <div class="gyo">
+      <button class="gyob" onclick="go('q_gy_aig','🌲 Aiguille seule')">
+        <div class="gyob-ic">🌲</div><div class="gyob-n">Aiguille seule</div><div class="gyob-s">Disposition, insertion, distiques</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_micro_first','🌿 Microsporophylle ♂')">
+        <div class="gyob-ic">🌿</div><div class="gyob-n">Microsporophylle ♂</div><div class="gyob-s">Cône mâle, sacs polliniques</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_macro_first','🌸 Macrosporophylle ♀')">
+        <div class="gyob-ic">🌸</div><div class="gyob-n">Macrosporophylle ♀</div><div class="gyob-s">Cône femelle, arille, ovule</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_tronc','🪵 Tronc')">
+        <div class="gyob-ic">🪵</div><div class="gyob-n">Tronc</div><div class="gyob-s">Écorce, port, ramification</div>
+      </button>
+    </div>`;
+    return;
+  }
+
+  if(node.isGymnoFeuOrgan){
+    app.innerHTML=`<div class="tag-o">Observez : Feuilles</div><span class="tag-s">${node.src}</span><p class="slbl">Gymnospermes — Feuilles</p><p class="q">${node.q}</p>
+    <div class="gyo">
+      <button class="gyob" onclick="go('q_gy_feu','🍃 Feuille seule')">
+        <div class="gyob-ic">🍃</div><div class="gyob-n">Feuille seule</div><div class="gyob-s">Forme, nervures, port</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_micro_first','🌿 Microsporophylle ♂')">
+        <div class="gyob-ic">🌿</div><div class="gyob-n">Microsporophylle ♂</div><div class="gyob-s">Cône mâle, chaton, étamines</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_macro_first','🌸 Macrosporophylle ♀')">
+        <div class="gyob-ic">🌸</div><div class="gyob-n">Macrosporophylle ♀</div><div class="gyob-s">Cône femelle, ovules, arille</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_tronc','🪵 Tronc')">
+        <div class="gyob-ic">🪵</div><div class="gyob-n">Tronc</div><div class="gyob-s">Écorce, port, ramification</div>
+      </button>
+    </div>`;
+    return;
+  }
+
+  if(node.isGymnoInconnu){
+    app.innerHTML=`<div class="tag-o">Organe inconnu</div><span class="tag-s">${node.src}</span><p class="slbl">Gymnospermes — Autre organe</p><p class="q">${node.q}</p>
+    <div class="gyo">
+      <button class="gyob" onclick="go('q_gy_aig','🌲 Aiguille')">
+        <div class="gyob-ic">🌲</div><div class="gyob-n">Aiguille</div><div class="gyob-s">Disposition, insertion</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_feu','🍃 Feuille')">
+        <div class="gyob-ic">🍃</div><div class="gyob-n">Feuille</div><div class="gyob-s">Forme, nervures, port</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_tronc','🪵 Tronc')">
+        <div class="gyob-ic">🪵</div><div class="gyob-n">Tronc</div><div class="gyob-s">Écorce, ramification</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_macro_first','🌸 Macrosporophylle ♀')">
+        <div class="gyob-ic">🌸</div><div class="gyob-n">Macrosporophylle ♀</div><div class="gyob-s">Cône femelle, arille, ovule</div>
+      </button>
+      <button class="gyob" onclick="go('q_gy_micro_first','🌿 Microsporophylle ♂')">
+        <div class="gyob-ic">🌿</div><div class="gyob-n">Microsporophylle ♂</div><div class="gyob-s">Cône mâle, chaton, étamines</div>
+      </button>
+      <button class="gyob wide" onclick="restart()">
+        <div style="font-size:20px;margin-right:8px">↺</div>
+        <div><div class="gyob-n">Recommencer</div><div class="gyob-s">Revenir à l'accueil</div></div>
+      </button>
+    </div>`;
+    return;
+  }
+
+  // Question standard — paginated 2 options at a time
+  const st=node.src?`<span class="tag-s">${node.src}</span>`:'';
+  const _allOps=node.op||[];
+  const _inconnu=_allOps.filter(o=>o.t.startsWith('Inconnu'));
+  const _regular=_allOps.filter(o=>!o.t.startsWith('Inconnu'));
+  const _page=optPage[cur]||0;
+  const _start=_page*2;
+  const _shown=_regular.slice(_start,_start+2);
+  const _total=_regular.length;
+  const _hasMore=_start+2<_total;
+  const _pageLabel=_total>2?`<div class="opt-page">${_start+1}–${Math.min(_start+2,_total)} / ${_total}</div>`:'';
+  const _optsHtml=_shown.map((o,i)=>`<button class="opt" onclick="go('${o.nx}','${o.s}')"><div class="ol">${String.fromCharCode(65+_start+i)}</div><div class="ot">${glh(o.t)}</div></button>`).join('');
+  const _autreBtn=_hasMore?`<button class="opt-autre" onclick="nextOptPage('${cur}')"><span>Autre choix</span><span>→</span></button>`:'';
+  const _prevBtn=_page>0?`<button class="opt-prev" onclick="prevOptPage('${cur}')">← Précédents</button>`:'';
+  const _navHtml=(_prevBtn||_autreBtn)?`<div class="opt-nav">${_prevBtn}<div style="flex:1"></div>${_autreBtn}</div>`:'';
+  const _incognuHtml=_inconnu.map(o=>`<button class="opt-inconnu" onclick="go('${o.nx}','${o.s}')"><span>?</span><span>${o.t}</span></button>`).join('');
+  app.innerHTML=`<div class="tag-o">Observez : ${node.og}</div>${st}<p class="slbl">${node.st}</p><p class="q">${gl(node.q)}</p>${_pageLabel}<div class="opts">${_optsHtml}</div>${_navHtml}${_incognuHtml}`;
+}
+
+function go(nx,sh){hist.push(sh);cur=nx;optPage[nx]=0;render();window.scrollTo({top:0,behavior:'smooth'})}
+function nextOptPage(key){optPage[key]=(optPage[key]||0)+1;render();window.scrollTo({top:0,behavior:'smooth'})}
+function prevOptPage(key){optPage[key]=Math.max(0,(optPage[key]||0)-1);render();window.scrollTo({top:0,behavior:'smooth'})}
+function restart(){hist=[];cur='br';render();window.scrollTo({top:0,behavior:'smooth'})}
+render();
+</script>
+</body>
+</html>
