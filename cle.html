@@ -3,120 +3,106 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PVI — Clé d'identification</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<title>Clé de détermination botanique — v0.35</title>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#FFFFFF;
-  --surface:#F9F8F5;
-  --border:#E0DDD5;
-  --border-lt:#ECEAE4;
-  --text:#111110;
-  --text-2:#3A3830;
-  --text-3:#888078;
-  --green:#3D7A1A;
-  --green-lt:#EEF5E6;
-  --blue:#1A4A7A;
-  --blue-lt:#E6EEF7;
-  --amber:#7A4A10;
-  --amber-lt:#F5EBD8;
-  --r:3px;--rl:4px;
+  --bg:#F7F5F0;--surface:#FDFCFA;--border:#DDD8CF;--border-lt:#EDE9E2;
+  --text:#1A1812;--text-2:#5C5649;--text-3:#9A9385;
+  --green:#2D6A4F;--green-lt:#EAF2EC;
+  --blue:#1A4A7A;--blue-lt:#E6EEF7;
+  --amber:#7A4A10;--amber-lt:#F5EBD8;
+  --r:6px;--rl:10px;
 }
 html{background:var(--bg)}
-body{font-family:'Cormorant Garamond',Georgia,serif;color:var(--text);min-height:100vh;background:var(--bg)}
-
-/* ── NAV ── */
-.pvi-nav{position:sticky;top:0;z-index:100;background:#000;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:52px;margin-bottom:0}
-.pvi-nav-logo{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:#fff;text-decoration:none}
-.pvi-nav-links{display:flex;gap:28px;list-style:none}
-.pvi-nav-links a{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,.65);text-decoration:none;transition:color .15s}
-.pvi-nav-links a:hover,.pvi-nav-links a.active{color:#fff}
-
-/* ── SHELL ── */
-.shell{max-width:680px;margin:0 auto;padding:36px 20px 80px}
+body{font-family:'Crimson Pro',Georgia,serif;color:var(--text);min-height:100vh;background:var(--bg)}
+.shell{max-width:680px;margin:0 auto;padding:32px 20px 60px}
 .hdr{text-align:center;margin-bottom:36px;padding-bottom:24px;border-bottom:1px solid var(--border-lt)}
-.hdr h1{font-weight:300;font-size:22px;letter-spacing:.08em;text-transform:uppercase;font-family:'DM Mono',monospace;margin-bottom:6px;color:var(--text)}
+.hdr h1{font-weight:300;font-size:26px;letter-spacing:.04em;margin-bottom:6px}
 .hdr p{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3)}
-
-/* ── PROGRESSION ── */
 .prog{display:flex;gap:3px;margin-bottom:20px;height:2px}
 .dot{flex:1;border-radius:2px;background:var(--border)}
 .dot.done{background:var(--green)}.dot.active{background:var(--green);opacity:.4}
-
-/* ── BREADCRUMB ── */
 .bc{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:20px;min-height:22px}
-.crumb{font-family:'DM Mono',monospace;font-size:10px;background:var(--surface);border:1px solid var(--border-lt);border-radius:2px;padding:2px 8px;color:var(--text-3)}
-
-/* ── TAGS ── */
-.tag-o{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--green-lt);color:var(--green);border:1px solid #C8E0A8;border-radius:2px;padding:2px 8px;margin-bottom:8px}
-.tag-s{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;background:var(--blue-lt);color:var(--blue);border:1px solid #C2D4E8;border-radius:2px;padding:2px 8px;margin-left:5px;margin-bottom:8px}
+.crumb{font-family:'DM Mono',monospace;font-size:10px;background:var(--surface);border:1px solid var(--border-lt);border-radius:3px;padding:2px 8px;color:var(--text-3)}
+.tag-o{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;background:var(--green-lt);color:var(--green);border:1px solid #C2DAC8;border-radius:3px;padding:2px 8px;margin-bottom:8px}
+.tag-s{display:inline-block;font-family:'DM Mono',monospace;font-size:10px;background:var(--blue-lt);color:var(--blue);border:1px solid #C2D4E8;border-radius:3px;padding:2px 8px;margin-left:5px;margin-bottom:8px}
 .slbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-3);margin-bottom:8px}
-.q{font-size:21px;font-weight:400;line-height:1.45;margin-bottom:20px}
-.opt-page{font-size:11px;color:var(--text-2);text-align:right;margin-bottom:4px;letter-spacing:.03em}
-
-/* ── OPTIONS ── */
+.q{font-size:20px;font-weight:400;line-height:1.45;margin-bottom:20px}
 .opts{display:flex;flex-direction:column;gap:8px}
-.opt{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:13px 16px;cursor:pointer;text-align:left;display:flex;align-items:flex-start;gap:12px;transition:border-color .12s,background .12s;font-family:'Cormorant Garamond',Georgia,serif}
-.opt:hover{border-color:var(--green);background:var(--green-lt)}
+.opt{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:13px 16px;cursor:pointer;text-align:left;display:flex;align-items:flex-start;gap:12px;transition:border-color .12s,background .12s;font-family:'Crimson Pro',Georgia,serif}
+.opt:hover{border-color:var(--green);background:#F4F8F5}
+/* ── Pagination options ── */
+.opt-page{font-size:11px;color:var(--text-2);text-align:right;margin-bottom:4px;letter-spacing:.03em}
 .opt-nav{display:flex;gap:8px;margin-top:6px;align-items:center}
-.opt-autre{background:var(--green-lt);border:1px dashed var(--green);border-radius:var(--rl);padding:12px 18px;cursor:pointer;text-align:left;width:100%;font-family:'Cormorant Garamond',Georgia,serif;display:flex;align-items:center;justify-content:space-between;color:var(--green);font-size:16px;transition:background .12s;margin-top:4px}
+.opt-autre{background:var(--green-lt);border:1px dashed var(--green);border-radius:var(--rl);padding:12px 18px;cursor:pointer;text-align:left;width:100%;font-family:'Crimson Pro',Georgia,serif;display:flex;align-items:center;justify-content:space-between;color:var(--green);font-size:15px;transition:background .12s;margin-top:4px}
 .opt-autre:hover{background:#DDF0E4}
-.opt-prev{background:none;border:1px solid var(--border);border-radius:var(--rl);padding:9px 14px;cursor:pointer;font-size:14px;color:var(--text-2);font-family:'Cormorant Garamond',Georgia,serif;transition:background .12s;margin-top:4px}
+.opt-prev{background:none;border:1px solid var(--border);border-radius:var(--rl);padding:9px 14px;cursor:pointer;font-size:13px;color:var(--text-2);font-family:'Crimson Pro',Georgia,serif;transition:background .12s;margin-top:4px}
 .opt-prev:hover{background:var(--surface)}
-.opt-inconnu{background:none;border:1px solid var(--border);border-radius:var(--rl);padding:9px 16px;cursor:pointer;text-align:left;width:100%;font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;color:var(--text-2);margin-top:10px;display:flex;align-items:center;gap:8px;transition:background .12s}
+.opt-inconnu{background:none;border:1px solid var(--border);border-radius:var(--rl);padding:9px 16px;cursor:pointer;text-align:left;width:100%;font-family:'Crimson Pro',Georgia,serif;font-size:13px;color:var(--text-2);margin-top:10px;display:flex;align-items:center;gap:8px;transition:background .12s}
 .opt-inconnu:hover{background:var(--surface)}
-.ol{font-family:'DM Mono',monospace;font-size:11px;font-weight:400;width:20px;height:20px;border-radius:50%;background:var(--border-lt);display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0;margin-top:2px}
-.ot{font-size:16px;line-height:1.5}
-
-/* ── EMBRANCHEMENTS ── */
+.btn-back{
+  display:flex;align-items:center;gap:8px;
+  margin-top:20px;
+  background:none;border:1px solid var(--border);
+  border-radius:var(--rl);padding:10px 18px;
+  cursor:pointer;font-family:'Cormorant Garamond',Georgia,serif;
+  font-size:14px;color:var(--text-3);
+  transition:background .12s,color .12s,border-color .12s;
+  width:100%;justify-content:center;
+}
+.btn-back:hover{background:var(--surface);color:var(--text);border-color:var(--text-3)}
+.btn-back svg{flex-shrink:0}
+.opt:hover{border-color:var(--green);background:#F4F8F5}
+.ol{font-family:'DM Mono',monospace;font-size:11px;font-weight:500;width:20px;height:20px;border-radius:50%;background:var(--border-lt);display:flex;align-items:center;justify-content:center;color:var(--green);flex-shrink:0;margin-top:2px}
+.ot{font-size:15px;line-height:1.5}
 .branches{display:flex;flex-direction:column;gap:7px}
-.branch{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .12s,background .12s}
-.branch:hover{border-color:var(--green);background:var(--green-lt)}
+.branch{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:12px 16px;cursor:pointer;display:flex;align-items:center;gap:14px;transition:border-color .12s,background .12s}
+.branch:hover{border-color:var(--green);background:#F4F8F5}
 .branch.dashed{border-style:dashed}
 .bic{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.bn{font-size:15px;font-weight:600}.bs{font-size:13px;color:var(--text-2);margin-top:2px}
+.bn{font-size:15px;font-weight:500}.bs{font-size:13px;color:var(--text-2);margin-top:2px}
 .ba{font-family:'DM Mono',monospace;font-size:10px;color:var(--text-3);min-width:58px;text-align:right}
 .div{border:none;border-top:1px solid var(--border-lt);margin:4px 0}
-
-/* ── GRILLES ── */
 .gg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* ── Gymno organ grid (5 buttons) ── */
 .gyo{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.gyo .gyob{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:14px 10px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s;font-family:'Cormorant Garamond',Georgia,serif}
-.gyo .gyob:hover{border-color:var(--green);background:var(--green-lt)}
-.gyo .gyob.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:12px;text-align:left;padding:14px 18px;border-color:#C8E0A8;background:var(--green-lt)}
+.gyo .gyob{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:14px 10px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s;font-family:'Crimson Pro',Georgia,serif}
+.gyo .gyob:hover{border-color:var(--green);background:#F4F8F5}
+.gyo .gyob.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:12px;text-align:left;padding:14px 18px;border-color:#C2DAC8;background:var(--green-lt)}
 .gyo .gyob.wide:hover{border-color:var(--green);background:#DDF0E4}
 .gyob-ic{font-size:22px;margin-bottom:5px}
-.gyob-n{font-size:13px;font-weight:600}
+.gyob-n{font-size:13px;font-weight:500}
 .gyob-s{font-size:11px;color:var(--text-2);margin-top:2px}
-.gb{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:22px 16px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s}
-.gb:hover{border-color:var(--green);background:var(--green-lt)}
-.gic{font-size:36px;margin-bottom:10px}.gn{font-size:16px;font-weight:600;margin-bottom:4px}.gs{font-size:12px;color:var(--text-2)}
+.gb{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:22px 16px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s}
+.gb:hover{border-color:var(--green);background:#F4F8F5}
+.gic{font-size:36px;margin-bottom:10px}.gn{font-size:16px;font-weight:500;margin-bottom:4px}.gs{font-size:12px;color:var(--text-2)}
 .og{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.ob{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:16px 12px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s}
-.ob:hover{border-color:var(--green);background:var(--green-lt)}
-.ob.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;text-align:left;padding:18px 20px;border-color:#C8E0A8;background:var(--green-lt)}
+.ob{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:16px 12px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s}
+.ob:hover{border-color:var(--green);background:#F4F8F5}
+.ob.wide{grid-column:1/-1;display:flex;align-items:center;justify-content:center;gap:14px;text-align:left;padding:18px 20px;border-color:#C2DAC8;background:var(--green-lt)}
 .ob.wide:hover{border-color:var(--green);background:#DDF0E4}
-.oic{font-size:24px;margin-bottom:6px}.on{font-size:14px;font-weight:600}.os{font-size:11px;color:var(--text-2);margin-top:2px}
-
-/* ── RÉSULTAT ── */
-.res{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:28px}
-.rb{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--green-lt);color:var(--green);border:1px solid #C8E0A8;border-radius:2px;padding:2px 10px;display:inline-block;margin-bottom:12px}
-.rn{font-size:28px;font-weight:400;font-style:italic;margin-bottom:4px}
-.rsy{font-family:'DM Mono',monospace;font-size:12px;color:var(--text-2);margin-bottom:16px}
+.oic{font-size:24px;margin-bottom:6px}.on{font-size:14px;font-weight:500}.os{font-size:11px;color:var(--text-2);margin-top:2px}
+.res{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:28px}
+.rb{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;background:var(--green-lt);color:var(--green);border:1px solid #C2DAC8;border-radius:3px;padding:2px 10px;display:inline-block;margin-bottom:12px}
+.rn{font-size:26px;font-weight:400;font-style:italic;margin-bottom:4px}
+.rsy{font-size:14px;color:var(--text-2);margin-bottom:16px}
 .rf{font-family:'DM Mono',monospace;font-size:11px;background:var(--blue-lt);border:1px solid #C2D4E8;border-radius:var(--r);padding:7px 12px;margin-bottom:10px;color:var(--blue);letter-spacing:.02em}
 .rf-label{font-size:9px;letter-spacing:.12em;text-transform:uppercase;opacity:.7;display:block;margin-bottom:3px}
 .rfm{font-family:'DM Mono',monospace;font-size:12px;background:#FEF0F3;border:1px solid #F0C0CC;border-radius:var(--r);padding:9px 14px;margin-bottom:16px;color:#8B2040;letter-spacing:.04em}
 .rc{margin-bottom:14px}
-.cr{display:flex;gap:9px;margin-bottom:8px;font-size:15px;line-height:1.55}
+.cr{display:flex;gap:9px;margin-bottom:8px;font-size:14px;line-height:1.5}
 .cd{color:var(--green);flex-shrink:0;margin-top:2px;font-size:12px}
 
-/* ── CAROUSEL PHOTO ── */
-.pcar{margin:0 0 18px 0;border-radius:var(--rl);overflow:hidden;background:#fff;border:1px solid var(--border)}
-.pcar-label{padding:8px 14px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--text-2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
-.pcar-count{font-size:10px;color:var(--text-3)}
+/* ── Photo carousel ── */
+.pcar{margin:0 0 18px 0;border-radius:var(--rl);overflow:hidden;background:var(--surface);border:1px solid var(--border)}
+.pcar-label{padding:8px 14px;font-size:12px;color:var(--text-2);border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.pcar-count{font-size:11px;color:var(--text-3,#aaa)}
 .pcar-img-wrap{width:100%;aspect-ratio:4/3;background:#f0f0f0;overflow:hidden;display:flex;align-items:center;justify-content:center}
-.pcar-img{width:100%;height:100%;object-fit:cover;display:block}
+.pcar-img{width:100%;height:100%;object-fit:cover;display:block;transition:opacity .3s}
+.pcar-loading{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-2);font-size:13px;gap:8px}
+.pcar-err{font-size:12px;color:var(--text-2);padding:20px;text-align:center}
 .pcar-nav{display:flex;align-items:center;justify-content:space-between;padding:8px 12px}
 .pcar-btn{background:none;border:1px solid var(--border);border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;color:var(--text);display:flex;align-items:center;justify-content:center;transition:background .1s}
 .pcar-btn:hover{background:var(--green-lt)}
@@ -124,66 +110,66 @@ body{font-family:'Cormorant Garamond',Georgia,serif;color:var(--text);min-height
 .pcar-dot{width:7px;height:7px;border-radius:50%;background:var(--border);cursor:pointer;transition:background .15s}
 .pcar-dot.active{background:var(--green)}
 
-/* ── BLOC RÉSULTAT AMBRE ── */
-.rft{border-left:2px solid var(--amber);padding:8px 14px;font-size:15px;color:var(--text-2);margin-bottom:20px;border-radius:0 var(--r) var(--r) 0;background:var(--amber-lt)}
+.rft{border-left:2px solid var(--amber);padding:8px 14px;font-size:14px;color:var(--text-2);margin-bottom:20px;border-radius:0 var(--r) var(--r) 0;background:var(--amber-lt)}
 .rft strong{color:var(--amber);font-weight:600}
-
-/* ── BOUTON RESTART ── */
-.restart{background:#1A1A18;border:none;color:#8CC76A;padding:12px 28px;border-radius:var(--r);font-size:16px;font-style:italic;font-family:'Cormorant Garamond',Georgia,serif;cursor:pointer;transition:opacity .15s;font-weight:600}
-.restart:hover{opacity:.85}
-
-/* ── PHYCOPHYTES ── */
+.restart{background:transparent;border:1px solid var(--border);color:var(--text-2);padding:8px 20px;border-radius:var(--r);font-size:13px;font-family:'Crimson Pro',Georgia,serif;cursor:pointer;transition:border-color .12s,color .12s}
+.restart:hover{border-color:var(--green);color:var(--green)}
+/* ── Phycophytes : grille de couleurs ── */
 .pc-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:8px}
-.pc-btn{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:18px 12px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s;font-family:'Cormorant Garamond',Georgia,serif}
-.pc-btn:hover{border-color:var(--green);background:var(--green-lt)}
+.pc-btn{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:18px 12px;cursor:pointer;text-align:center;transition:border-color .12s,background .12s;font-family:'Crimson Pro',Georgia,serif}
+.pc-btn:hover{border-color:var(--green);background:#F4F8F5}
 .pc-ic{font-size:28px;margin-bottom:8px}
-.pc-n{font-size:15px;font-weight:600;margin-bottom:3px}
+.pc-n{font-size:15px;font-weight:500;margin-bottom:3px}
 .pc-s{font-size:11px;color:var(--text-2)}
 .pc-blue{display:flex;align-items:center;gap:14px;text-align:left;padding:16px 20px;border-style:dashed;border-color:#4A90D9;background:#EEF4FB}
 .pc-blue:hover{background:#E0ECF8;border-color:#2A6AB8}
 .pc-warn{font-size:12px;color:#8B2020;margin-top:4px;font-style:italic}
-
-/* ── AVERTISSEMENT ── */
+/* ── Résultat avertissement (Cyanobactéries) ── */
 .res-warn{background:#FFF8E1;border:1px dashed #D4A017;border-radius:var(--rl);padding:28px}
 .warn-icon{font-size:36px;margin-bottom:12px}
-.warn-title{font-size:22px;font-weight:600;margin-bottom:8px;color:#7A4A10}
-.warn-body{font-size:16px;line-height:1.65;color:var(--text-2);margin-bottom:20px}
+.warn-title{font-size:22px;font-weight:500;margin-bottom:8px;color:#7A4A10}
+.warn-body{font-size:15px;line-height:1.65;color:var(--text-2);margin-bottom:20px}
 
-/* ── GLOSSAIRE ── */
+/* ── Glossaire : termes dans les QUESTIONS → clic modal ── */
 .gl{border-bottom:1px dotted var(--text-3);cursor:pointer;transition:color .1s,border-color .1s}
 .gl:hover{color:var(--green);border-bottom-color:var(--green)}
+
+/* ── Glossaire : termes dans les OPTIONS → hover 0.5s tooltip ── */
 .glt{border-bottom:1px dotted var(--text-3);cursor:help;transition:color .1s,border-color .1s;position:relative}
 .glt:hover{color:var(--green);border-bottom-color:var(--green)}
 
-/* ── TOOLTIP ── */
-#tooltip{display:none;position:fixed;z-index:300;background:#111110;color:#F9F8F5;font-family:'Cormorant Garamond',Georgia,serif;font-size:14px;line-height:1.55;padding:12px 16px;border-radius:var(--r);max-width:300px;pointer-events:none;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+/* ── Tooltip flottant ── */
+#tooltip{
+  display:none;
+  position:fixed;
+  z-index:300;
+  background:var(--text);
+  color:#F7F5F0;
+  font-family:'Crimson Pro',Georgia,serif;
+  font-size:13px;
+  line-height:1.55;
+  padding:10px 14px;
+  border-radius:var(--r);
+  max-width:300px;
+  pointer-events:none;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+}
 #tooltip .tt-term{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;opacity:.6;display:block;margin-bottom:5px}
 #tooltip .tt-src{font-family:'DM Mono',monospace;font-size:9px;opacity:.5;display:block;margin-top:6px}
 
-/* ── MODAL GLOSSAIRE ── */
-.mb{display:none;position:fixed;inset:0;background:rgba(17,17,16,.55);z-index:200;align-items:center;justify-content:center;padding:20px}
+/* ── Modal glossaire (clic depuis questions) ── */
+.mb{display:none;position:fixed;inset:0;background:rgba(20,18,12,.5);z-index:200;align-items:center;justify-content:center;padding:20px}
 .mb.open{display:flex}
-.md{background:#fff;border:1px solid var(--border);border-radius:var(--rl);padding:28px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto}
+.md{background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:26px;max-width:420px;width:100%;max-height:85vh;overflow-y:auto}
 .mh{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px}
-.mt{font-size:22px;font-weight:400}
+.mt{font-size:20px;font-weight:500}
 .mc{background:none;border:none;font-size:18px;color:var(--text-3);cursor:pointer;padding:0 0 0 12px}
 .mc:hover{color:var(--text)}
-.ms{font-family:'DM Mono',monospace;font-size:10px;background:var(--blue-lt);color:var(--blue);border:1px solid #C2D4E8;border-radius:2px;padding:2px 8px;display:inline-block;margin-bottom:14px}
-.mdf{font-size:16px;line-height:1.65;color:var(--text-2)}
+.ms{font-family:'DM Mono',monospace;font-size:10px;background:var(--blue-lt);color:var(--blue);border:1px solid #C2D4E8;border-radius:3px;padding:2px 8px;display:inline-block;margin-bottom:14px}
+.mdf{font-size:15px;line-height:1.65;color:var(--text-2)}
 </style>
 </head>
 <body>
-<nav class="pvi-nav">
-  <a class="pvi-nav-logo" href="index.html">PVI</a>
-  <ul class="pvi-nav-links">
-    <li><a href="index.html">Accueil</a></li>
-    <li><a href="guide.html">Guide</a></li>
-    <li><a href="cle.html" class="active">Clé</a></li>
-    <li><a href="soutenir.html">Soutenir</a></li>
-    <li><a href="a-propos.html">À propos</a></li>
-    <li><a href="contact.html">Contact</a></li>
-  </ul>
-</nav>
 
 <!-- Tooltip flottant pour les options -->
 <div id="tooltip">
@@ -204,7 +190,7 @@ body{font-family:'Cormorant Garamond',Georgia,serif;color:var(--text);min-height
 <div class="shell">
   <div class="hdr">
     <h1>Clé de détermination botanique</h1>
-    <p>v0.35 — MOOC · BRDV · TP L2 · Plantes&Santé · Adventices · Diversité végétaux I & II · Gymnospermes</p>
+    <p>v0.35</p>
   </div>
   <div class="bc" id="bc"></div>
   <div class="prog" id="prog"></div>
@@ -1142,7 +1128,7 @@ r_graine_proto:{R:true,f:"Graine protéagineuse",src:"[TP]",sy:"Réserves proté
 r_graine_fab:{R:true,f:"Graine exalbuminée protéagineuse — Fabaceae probable",src:"[TP]",sy:"",fm:"",ch:["2 cotylédons volumineux — plus trace d'albumen [TP]","Réserves protéagineuses dans les cotylédons [TP]"],fr:"Gousse (Fabaceae typique)"},
 };
 
-let hist=[],cur="br";
+let hist=[],nodeHist=[],cur="br";
 const TOT=11;
 
 // ── PHOTOS — mapping taxon → IDs Google Drive ─────────────────────────────
@@ -1201,10 +1187,10 @@ function render(){
   if(node.R){
     // Résultat Cyanobactéries — rendu avertissement
     if(node.isCyano){
-      app.innerHTML=`<div class="res-warn"><div class="warn-icon">⚠️</div><div class="warn-title">Cyanobactéries</div><div class="warn-body"><strong>Ce groupe n'appartient pas à l'embranchement des Phycophytes.</strong><br><br>Il n'existe pas d'algues bleues : elles correspondent aux cyanobactéries, donc à des procaryotes. <span class="tag-s" style="vertical-align:middle">[DV2]</span></div><button class="restart" onclick="restart()">↺ Recommencer</button></div>`;
+      app.innerHTML=`<div class="res-warn"><div class="warn-icon">⚠️</div><div class="warn-title">Cyanobactéries</div><div class="warn-body"><strong>Ce groupe n'appartient pas à l'embranchement des Phycophytes.</strong><br><br>Il n'existe pas d'algues bleues : elles correspondent aux cyanobactéries, donc à des procaryotes. </div><button class="restart" onclick="restart()">↺ Recommencer</button></div>`;
       return;
     }
-    const _nodeKey=cur;app.innerHTML=`<div class="res"><div class="rb">Taxon identifié</div><span class="tag-s">${node.src}</span><div class="rn">${node.f}</div>${node.sy?`<div class="rsy">${node.sy}</div>`:''}<div class="rf"><span class="rf-label">Taxon précédent</span>${node.pt||'—'}</div>${node.fm?`<div class="rfm">${gl(node.fm)}</div>`:''}<div class="rc">${node.ch.map(c=>`<div class="cr"><span class="cd">▸</span><span>${gl(c)}</span></div>`).join('')}</div>${node.fr?`<div class="rft"><strong>${node.fl||'Fruit'} :</strong> ${gl(node.fr)}</div>`:''}<div id="photo-slot"></div><button class="restart" onclick="restart()">↺ Nouvelle identification</button></div>`;
+    const _nodeKey=cur;app.innerHTML=`<div class="res"><div class="rb">Taxon identifié</div><div class="rn">${node.f}</div>${node.sy?`<div class="rsy">${node.sy}</div>`:''}<div class="rf"><span class="rf-label">Taxon précédent</span>${node.pt||'—'}</div>${node.fm?`<div class="rfm">${gl(node.fm)}</div>`:''}<div class="rc">${node.ch.map(c=>`<div class="cr"><span class="cd">▸</span><span>${gl(c)}</span></div>`).join('')}</div>${node.fr?`<div class="rft"><strong>${node.fl||'Fruit'} :</strong> ${gl(node.fr)}</div>`:''}<div id="photo-slot"></div><button class="restart" onclick="restart()">↺ Nouvelle identification</button></div>`;
   const _ps=document.getElementById('photo-slot');
   if(_ps){_ps.outerHTML=buildCarousel(_nodeKey)||'';}
     return;
@@ -1213,7 +1199,6 @@ function render(){
   if(node.isPhycoColor){
     app.innerHTML=`
       <div class="tag-o">Observez : Couleur dominante</div>
-      <span class="tag-s">[DV2]</span>
       <p class="slbl">Phycophytes</p>
       <p class="q">${gl(node.q)}</p>
       <div class="pc-grid">
@@ -1251,7 +1236,7 @@ function render(){
   }
 
   if(node.isGymnoOrgan){
-    app.innerHTML=`<div class="tag-o">Organe disponible</div><span class="tag-s">${node.src}</span><p class="slbl">Gymnospermes</p><p class="q">${node.q}</p>
+    app.innerHTML=`<div class="tag-o">Organe disponible</div><p class="slbl">Gymnospermes</p><p class="q">${node.q}</p>
     <div class="gyo">
       <button class="gyob" onclick="go('q_gy_aig','🌲 Aiguille')">
         <div class="gyob-ic">🌲</div><div class="gyob-n">Aiguille</div><div class="gyob-s">Feuille aciculaire</div>
@@ -1277,7 +1262,7 @@ function render(){
   }
 
   if(node.isGymnoAigOrgan){
-    app.innerHTML=`<div class="tag-o">Observez : Aiguilles</div><span class="tag-s">${node.src}</span><p class="slbl">Gymnospermes — Aiguilles</p><p class="q">${node.q}</p>
+    app.innerHTML=`<div class="tag-o">Observez : Aiguilles</div><p class="slbl">Gymnospermes — Aiguilles</p><p class="q">${node.q}</p>
     <div class="gyo">
       <button class="gyob" onclick="go('q_gy_aig','🌲 Aiguille seule')">
         <div class="gyob-ic">🌲</div><div class="gyob-n">Aiguille seule</div><div class="gyob-s">Disposition, insertion, distiques</div>
@@ -1296,7 +1281,7 @@ function render(){
   }
 
   if(node.isGymnoFeuOrgan){
-    app.innerHTML=`<div class="tag-o">Observez : Feuilles</div><span class="tag-s">${node.src}</span><p class="slbl">Gymnospermes — Feuilles</p><p class="q">${node.q}</p>
+    app.innerHTML=`<div class="tag-o">Observez : Feuilles</div><p class="slbl">Gymnospermes — Feuilles</p><p class="q">${node.q}</p>
     <div class="gyo">
       <button class="gyob" onclick="go('q_gy_feu','🍃 Feuille seule')">
         <div class="gyob-ic">🍃</div><div class="gyob-n">Feuille seule</div><div class="gyob-s">Forme, nervures, port</div>
@@ -1310,12 +1295,12 @@ function render(){
       <button class="gyob" onclick="go('q_gy_tronc','🪵 Tronc')">
         <div class="gyob-ic">🪵</div><div class="gyob-n">Tronc</div><div class="gyob-s">Écorce, port, ramification</div>
       </button>
-    </div>`;
+    </div>${nodeHist.length>0?`<button class="btn-back" onclick="goBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Question précédente</button>`:''}`;
     return;
   }
 
   if(node.isGymnoInconnu){
-    app.innerHTML=`<div class="tag-o">Organe inconnu</div><span class="tag-s">${node.src}</span><p class="slbl">Gymnospermes — Autre organe</p><p class="q">${node.q}</p>
+    app.innerHTML=`<div class="tag-o">Organe inconnu</div><p class="slbl">Gymnospermes — Autre organe</p><p class="q">${node.q}</p>
     <div class="gyo">
       <button class="gyob" onclick="go('q_gy_aig','🌲 Aiguille')">
         <div class="gyob-ic">🌲</div><div class="gyob-n">Aiguille</div><div class="gyob-s">Disposition, insertion</div>
@@ -1336,12 +1321,12 @@ function render(){
         <div style="font-size:20px;margin-right:8px">↺</div>
         <div><div class="gyob-n">Recommencer</div><div class="gyob-s">Revenir à l'accueil</div></div>
       </button>
-    </div>`;
+    </div>${nodeHist.length>0?`<button class="btn-back" onclick="goBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Question précédente</button>`:''}`;
     return;
   }
 
   // Question standard — paginated 2 options at a time
-  const st=node.src?`<span class="tag-s">${node.src}</span>`:'';
+  const st='';
   const _allOps=node.op||[];
   const _inconnu=_allOps.filter(o=>o.t.startsWith('Inconnu'));
   const _regular=_allOps.filter(o=>!o.t.startsWith('Inconnu'));
@@ -1356,13 +1341,21 @@ function render(){
   const _prevBtn=_page>0?`<button class="opt-prev" onclick="prevOptPage('${cur}')">← Précédents</button>`:'';
   const _navHtml=(_prevBtn||_autreBtn)?`<div class="opt-nav">${_prevBtn}<div style="flex:1"></div>${_autreBtn}</div>`:'';
   const _incognuHtml=_inconnu.map(o=>`<button class="opt-inconnu" onclick="go('${o.nx}','${o.s}')"><span>?</span><span>${o.t}</span></button>`).join('');
-  app.innerHTML=`<div class="tag-o">Observez : ${node.og}</div>${st}<p class="slbl">${node.st}</p><p class="q">${gl(node.q)}</p>${_pageLabel}<div class="opts">${_optsHtml}</div>${_navHtml}${_incognuHtml}`;
+  app.innerHTML=`<div class="tag-o">Observez : ${node.og}</div>${st}<p class="slbl">${node.st}</p><p class="q">${gl(node.q)}</p>${_pageLabel}<div class="opts">${_optsHtml}</div>${_navHtml}${_incognuHtml}${nodeHist.length>0?`<button class="btn-back" onclick="goBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Question précédente</button>`:''}`;
 }
 
-function go(nx,sh){hist.push(sh);cur=nx;optPage[nx]=0;render();window.scrollTo({top:0,behavior:'smooth'})}
+function go(nx,sh){hist.push(sh);nodeHist.push(cur);cur=nx;optPage[nx]=0;render();window.scrollTo({top:0,behavior:'smooth'})}
+function goBack(){
+  if(nodeHist.length===0)return;
+  cur=nodeHist.pop();
+  hist.pop();
+  optPage[cur]=0;
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 function nextOptPage(key){optPage[key]=(optPage[key]||0)+1;render();window.scrollTo({top:0,behavior:'smooth'})}
 function prevOptPage(key){optPage[key]=Math.max(0,(optPage[key]||0)-1);render();window.scrollTo({top:0,behavior:'smooth'})}
-function restart(){hist=[];cur='br';render();window.scrollTo({top:0,behavior:'smooth'})}
+function restart(){hist=[];nodeHist=[];cur='br';render();window.scrollTo({top:0,behavior:'smooth'})}
 render();
 </script>
 </body>
