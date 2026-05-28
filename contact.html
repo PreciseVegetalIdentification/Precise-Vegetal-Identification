@@ -107,6 +107,31 @@
       color:rgba(255,255,255,.72);
     }
 
+
+    /* ── MENTIONS LÉGALES ── */
+    .legal-section{
+      max-width:640px;margin:0 auto;
+      padding:64px 48px 0;
+      text-align:left;
+    }
+    .legal-title{
+      font-size:clamp(28px,3.5vw,40px);font-weight:400;
+      line-height:1.05;letter-spacing:-.01em;
+      margin-bottom:20px;
+    }
+    .legal-divider{width:80px;height:1px;background:var(--border);margin-bottom:48px}
+    .legal-block{margin-bottom:32px;padding-bottom:32px;border-bottom:1px solid var(--border)}
+    .legal-block:last-child{border-bottom:none;padding-bottom:0}
+    .legal-label{
+      font-family:'DM Mono',monospace;font-size:9px;
+      letter-spacing:.18em;text-transform:uppercase;
+      color:var(--ink-3);margin-bottom:10px;
+    }
+    .legal-text{
+      font-size:16px;font-weight:300;line-height:1.8;color:var(--ink-2);
+    }
+    .legal-text a{color:var(--green);text-decoration:none}
+    .legal-text a:hover{text-decoration:underline}
     @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
     @media(max-width:700px){
@@ -153,9 +178,59 @@
   <span class="photo-caption">Prunus serrulata</span>
 </div>
 
+  <!-- ── MENTIONS LÉGALES ── -->
+  <section class="legal-section">
+    <h2 class="legal-title">Mentions légales</h2>
+    <div class="legal-divider"></div>
+
+    <div class="legal-block">
+      <p class="legal-label">Propriété intellectuelle</p>
+      <p class="legal-text">
+        L'ensemble du contenu de PVI — algorithme de détermination, base de données botanique, glossaire, textes et photographies — est protégé par la licence
+        <a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener">CC BY-NC-ND 4.0</a>.
+        Les photographies sont la propriété exclusive de Félix Marrec. Toute reproduction ou utilisation est soumise à autorisation préalable.
+      </p>
+    </div>
+
+    <div class="legal-block">
+      <p class="legal-label">Usages autorisés</p>
+      <p class="legal-text">
+        La consultation de PVI est libre pour un usage personnel, académique ou scientifique. Toute citation de PVI doit mentionner l'autrice (Jézabel Perez) et l'URL du site.
+      </p>
+    </div>
+
+    <div class="legal-block">
+      <p class="legal-label">Usages interdits</p>
+      <p class="legal-text">
+        Sont interdits sans autorisation écrite préalable : la reproduction commerciale de tout ou partie du contenu, la modification ou adaptation de l'algorithme, la réutilisation des photographies, et la création d'outils dérivés de PVI.
+      </p>
+    </div>
+
+    <div class="legal-block">
+      <p class="legal-label">Responsabilité</p>
+      <p class="legal-text">
+        PVI est un outil d'aide à la détermination botanique destiné à des personnes disposant de bases scientifiques. Les résultats fournis par la clé doivent être vérifiés par l'utilisateur. Les autrices de PVI ne sauraient être tenues responsables d'une identification erronée résultant d'une erreur d'observation de la part de l'utilisateur.
+      </p>
+    </div>
+
+    <div class="legal-block">
+      <p class="legal-label">Données personnelles</p>
+      <p class="legal-text">
+        PVI ne collecte, ne stocke et ne transmet aucune donnée personnelle. Aucun cookie n'est utilisé. Le site est conforme au Règlement Général sur la Protection des Données (RGPD).
+      </p>
+    </div>
+
+    <div class="legal-block">
+      <p class="legal-label">Demandes d'autorisation</p>
+      <p class="legal-text">
+        Pour toute demande d'autorisation d'utilisation, de partenariat ou de collaboration :
+        <a href="mailto:precisevegetalidentification@gmail.com">precisevegetalidentification@gmail.com</a>
+      </p>
+    </div>
+  </section>
 <footer>
-  <span class="footer-l">PVI — Precise Vegetal Identification</span>
-  <span class="footer-r">v0.34 · 2026</span>
+  <span class="footer-l">© 2026 Jézabel Perez · PVI — Precise Vegetal Identification</span>
+  <span class="footer-r"><a href="https://creativecommons.org/licenses/by-nc-nd/4.0/" target="_blank" rel="noopener" style="color:var(--ink-3);text-decoration:none;letter-spacing:.1em;font-family:'DM Mono',monospace;font-size:10px;">CC BY-NC-ND 4.0</a></span>
 </footer>
 
 </body>
