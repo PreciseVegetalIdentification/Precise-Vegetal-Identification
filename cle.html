@@ -1685,17 +1685,16 @@ function render(){
   app.innerHTML=`<div class="tag-o">Observez : ${node.og}</div>${st}<p class="slbl">${node.st}</p><p class="q">${gl(node.q)}</p>${_pageLabel}<div class="opts">${_optsHtml}</div>${_navHtml}${_incognuHtml}${nodeHist.length>0?`<button class="btn-back" onclick="goBack()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>Question précédente</button>`:''}`;
 }
 
-function go(nx,sh){hist.push(sh);nodeHist.push(cur);cur=nx;optPage[nx]=0;render();window.scrollTo({top:0,behavior:'smooth'})}
+function go(nx,sh){hist.push(sh);nodeHist.push(cur);cur=nx;optPage[nx]=0;render()}
 function goBack(){
   if(nodeHist.length===0)return;
   cur=nodeHist.pop();
   hist.pop();
   optPage[cur]=0;
   render();
-  window.scrollTo({top:0,behavior:'smooth'});
 }
-function nextOptPage(key){optPage[key]=(optPage[key]||0)+1;render();window.scrollTo({top:0,behavior:'smooth'})}
-function prevOptPage(key){optPage[key]=Math.max(0,(optPage[key]||0)-1);render();window.scrollTo({top:0,behavior:'smooth'})}
+function nextOptPage(key){optPage[key]=(optPage[key]||0)+1;render()}
+function prevOptPage(key){optPage[key]=Math.max(0,(optPage[key]||0)-1);render()}
 function restart(){hist=[];nodeHist=[];cur='br';render();window.scrollTo({top:0,behavior:'smooth'})}
 render();
 </script>
